@@ -4,6 +4,7 @@ from datetime import datetime
 # from typing import Optional
 from .get_gps import get_gps_heading
 
+import sys
 import os
 from threading import Lock
 from typing import Optional
@@ -13,10 +14,10 @@ def load_log_path() -> str:
     try:
         with open('./tmp/log_path.txt', 'r', encoding='utf-8') as f:
             log_path = f.read().strip()
-            print(f"Loaded log path from ./tmp/log_path.txt: {log_path}")
+            print(f"Loaded log path from ./tmp/log_path.txt: {log_path}", file=sys.stderr)
             return log_path
     except Exception as e:
-        print(f"加载日志路径失败: {e}")
+        print(f"加载日志路径失败: {e}", file=sys.stderr)
         return './logs/self_logging.log'
 
 class MyLogger:
@@ -55,10 +56,10 @@ class MyLogger:
         with self._lock:
             try:
                 with open('./tmp/log_path.txt', 'w', encoding='utf-8') as f:
-                    print(f"Saving log path to ./tmp/log_path.txt: {self.log_path}")
+                    print(f"Saving log path to ./tmp/log_path.txt: {self.log_path}", file=sys.stderr)
                     f.write(self.log_path)
             except Exception as e:
-                print(f"记录日志路径失败: {e}")
+                print(f"记录日志路径失败: {e}", file=sys.stderr)
 
     def _format_message(self, message: str) -> str:
         """
@@ -83,7 +84,7 @@ class MyLogger:
                 with open(self.log_path, 'a', encoding='utf-8') as f:
                     f.write(formatted_message)
             except Exception as e:
-                print(f"写入日志失败: {e}")
+                print(f"写入日志失败: {e}", file=sys.stderr)
     
     def info(self, message: str):
         """记录 INFO 级别日志"""
@@ -101,8 +102,8 @@ class MyLogger:
 
     def record_sam(self):
         # copy ./tmp/init_tracking_mask.png and ./tmp/init_tracking_view.png to self.log_dir
-        print(self.log_dir)
-        print(self.log_path)
+        print(self.log_dir, file=sys.stderr)
+        print(self.log_path, file=sys.stderr)
         try:
             import shutil
             shutil.copy('./tmp/init_tracking_mask.png', os.path.join(self.log_dir, 'init_tracking_mask.png'))
@@ -114,7 +115,7 @@ class MyLogger:
         tracking_image_path = './tmp/tracked_view.png'
         tracking_bbox_path = './tmp/tracked_view_bbox.json'
         # copy tracking_image_path and tracking_bbox_path to self.log_dir
-        print(f'record_tracking copy {tracking_image_path} and {tracking_bbox_path} to {self.log_dir}')
+        print(f'record_tracking copy {tracking_image_path} and {tracking_bbox_path} to {self.log_dir}', file=sys.stderr)
         try:
             import shutil
             tracking_dir = os.path.join(self.log_dir, 'tracking_logs')

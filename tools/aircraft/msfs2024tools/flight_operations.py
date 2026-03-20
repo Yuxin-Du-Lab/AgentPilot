@@ -5,7 +5,10 @@ import json
 import time
 import sys
 import os
+import builtins
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+_original_print = builtins.print
+builtins.print = lambda *args, **kwargs: _original_print(*args, **{**kwargs, 'file': kwargs.get('file', sys.stderr)})
 from mcp.server.fastmcp import FastMCP
 from aircraft.utils.get_gps import get_is_on_ground
 from aircraft.utils.self_logging import get_my_logger
@@ -38,7 +41,7 @@ def set_flight_parameter(param_name, param_value):
         "val": param_value
     }
 
-    print(f"正在设置参数: {param_name} = {param_value}")
+    print(f"正在设置参数: {param_name} = {param_value}", file=sys.stderr)
 
     try:
         # 确保 API_URL_CTRL 不为 None（类型检查）
@@ -50,14 +53,16 @@ def set_flight_parameter(param_name, param_value):
         if response.status_code == 200:
             # 解析JSON响应
             data = response.json()
-            print(f"设置成功: {data['message']}")
-            return f"设置成功: {data['message']}"
+            msg = data.get('message', str(data))
+            print(f"设置成功: {msg}")
+            return f"设置成功: {msg}"
         else:
             if response.text:
                 try:
                     error_data = response.json()
-                    print(f"请求失败，状态码: {response.status_code}, 错误信息: {error_data['message']}")
-                    return f"请求失败，状态码: {response.status_code}, 错误信息: {error_data['message']}"
+                    msg = error_data.get('message', str(error_data))
+                    print(f"请求失败，状态码: {response.status_code}, 错误信息: {msg}")
+                    return f"请求失败，状态码: {response.status_code}, 错误信息: {msg}"
                 except:
                     print(f"请求失败，状态码: {response.status_code}, 响应内容: {response.text}")
                     return f"请求失败，状态码: {response.status_code}, 响应内容: {response.text}"
@@ -287,4 +292,6 @@ def move_forward_and_descend(time_s):
         return '飞机已着陆，请停止一切操作'
 
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(stream=sys.stderr, force=True)
     mcp.run(transport='stdio') 

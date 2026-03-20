@@ -71,4 +71,4 @@ model_weights/
 # Local development
 *.local
 local/ 
-output/
+output/tools/aircraft/tmp/

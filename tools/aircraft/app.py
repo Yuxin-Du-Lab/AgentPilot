@@ -197,6 +197,8 @@ class Gradio_Interface():
         """加载SAM图片"""
         initial_image_path = "./tmp/init_tracking_view.png"
         initial_mask_path = "./tmp/init_tracking_mask.png"
+        if not os.path.exists(initial_image_path) or not os.path.exists(initial_mask_path):
+            return None
         initial_image = Image.open(initial_image_path)
         initial_mask = Image.open(initial_mask_path)
         overlay_img = self.sam_tool.overlay_mask_on_image(initial_image, initial_mask)

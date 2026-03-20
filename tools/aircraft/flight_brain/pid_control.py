@@ -4,8 +4,11 @@ import time
 import json
 import os
 import sys
+import builtins
 from typing import Tuple
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+_original_print = builtins.print
+builtins.print = lambda *args, **kwargs: _original_print(*args, **{**kwargs, 'file': kwargs.get('file', sys.stderr)})
 from aircraft.msfs2024tools.flight_operations import move_forward, move_backward, move_ascend, move_descend, hover_turn_left, hover_turn_right, hover
 from aircraft.safety_tools.video_depth_estimation import stop_PID_control
 from aircraft.safety_tools.mode_switch_vlm import stop_PID_control_vlm
@@ -13,7 +16,7 @@ from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 from aircraft.utils.logger_config import setup_logger
 from aircraft.utils.self_logging import get_my_logger
-0
+
 # 设置日志记录器
 logger = setup_logger(__name__)
 
@@ -274,6 +277,8 @@ def pid_tracking_control():
 
 # 使用示例
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(stream=sys.stderr, force=True)
     mcp.run(transport='stdio') 
 
 

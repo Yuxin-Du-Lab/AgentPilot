@@ -13,6 +13,7 @@ git clone https://github.com/Yuxin-Du-Lab/AgentPilot.git
 Copy `.env.example` to `.env` in the repo root and fill in your own values:
 
 ```bash
+cd path/to/AgentPilot
 cp .env.example .env
 ```
 

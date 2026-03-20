@@ -6,7 +6,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import sys
 import os
+import builtins
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+_original_print = builtins.print
+builtins.print = lambda *args, **kwargs: _original_print(*args, **{**kwargs, 'file': kwargs.get('file', sys.stderr)})
 from aircraft.utils.image_utils import normalize_path, load_image
 from aircraft.utils.self_logging import get_my_logger
 
@@ -92,5 +95,7 @@ async def landing_ctrl():
     }, indent=2, ensure_ascii=False)
 
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(stream=sys.stderr, force=True)
     print("Landing control is running")
     mcp.run(transport='stdio') 
