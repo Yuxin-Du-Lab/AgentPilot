@@ -6,7 +6,27 @@ For the detailed guide, see: `tools/aircraft/README.md`.
 
 ## Environment
 
+### Config .env
+
+Copy `.env.example` to `.env` in the repo root and fill in your own values:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env`:
+
+- `QWEN_API_KEY`: Your Qwen / DashScope API key, available at [DashScope Console](https://dashscope.console.aliyun.com/)
+- `API_URL_CTRL` / `API_URL_CAMERA` / `API_URL_GET`: Replace `<IPv4 of MSFS2024 Computer>` with the actual IP of the machine running MSFS2024 (e.g. `192.168.1.100`)
+- Other `*_IP` / `*_PORT` values can be left as defaults unless you have conflicts
+
+
 ### Base env
+
+> If installation is slow, use the Tsinghua mirror:
+> ```bash
+> uv pip install <packages> -i https://pypi.tuna.tsinghua.edu.cn/simple
+> ```
 
 ```bash
 cd path/to/AgentPilot/tools/aircraft
@@ -25,7 +45,7 @@ uv pip install -e .
 
 ### Deploy SAM server
 
-Download `sam_vit_b_01ec64.pth` and put it at:
+Download `sam_vit_b_01ec64.pth` from the [SAM model checkpoints](https://github.com/facebookresearch/segment-anything#model-checkpoints) and put it at:
 `./tools/aircraft/tmp/sam_vit_b_01ec64.pth`
 
 ```bash
@@ -41,7 +61,7 @@ python -m sam_tools.sam_server
 
 ### Deploy Video Depth Estimation
 
-Download `metric_video_depth_anything_vitl.pth` and put it at:
+Download `video_depth_anything_vitl.pth` from [Video Depth Anything on HuggingFace](https://huggingface.co/depth-anything/Video-Depth-Anything-Large) and put it at:
 `./tools/aircraft/tmp/video_depth_anything_vitl.pth`
 
 > Note: `tools/aircraft/safety_tools/Video_Depth_Anything/` is vendored in this repo.
@@ -51,24 +71,8 @@ Download `metric_video_depth_anything_vitl.pth` and put it at:
 ```bash
 # terminal 2
 cd path/to/AgentPilot/tools/aircraft
+source .venv/bin/activate
 python -m msfs2024tools.capture_server
-```
-
-### Config .env
-
-Copy `.env.example` to `.env` in the repo root and fill your own API keys.
-
-```env
-QWEN_API_KEY=your_key
-
-GRADIO_SERVER_IP=127.0.0.1
-GRADIO_SERVER_PORT=7000
-
-CAPTURE_SERVER_IP=0.0.0.0
-CAPTURE_SERVER_PORT=7001
-
-SAM_SERVER_IP=127.0.0.1
-SAM_SERVER_PORT=7002
 ```
 
 ## Run
@@ -78,18 +82,29 @@ SAM_SERVER_PORT=7002
 ```bash
 # terminal 3
 cd path/to/AgentPilot/tools/aircraft
+source .venv/bin/activate
 python app.py
 ```
+
+Once the server starts, open the Gradio URL printed in the terminal to access the web interface.
+
+**Usage steps:**
+
+1. Click on the target vertipad in the visual scene at the top.
+2. Wait for the SAM segmentation result to appear in the panel below.
+3. Confirm the target vertipad is correctly segmented, then click **Start Tracking**.
+4. Verify in the tracking view that the vertipad is being tracked correctly.
 
 ### Run flight agent
 
 ```bash
 # terminal 4
 cd path/to/AgentPilot/tools/aircraft
-python flight_agent.py --query "fly"
+source .venv/bin/activate
+python flight_agent.py --query "landing on the target vertipot"
 ```
 
 ## Acknowledgment
-Thanks to [Fractflow](https://github.com/EnVision-Research/FractFlow).
+Thanks to [Fractflow](https://github.com/EnVision-Research/FractFlow), [Segment Anything (SAM)](https://github.com/facebookresearch/segment-anything), and [Video Depth Anything](https://github.com/DepthAnything/Video-Depth-Anything).
 
 

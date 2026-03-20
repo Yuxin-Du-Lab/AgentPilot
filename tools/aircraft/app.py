@@ -25,9 +25,9 @@ class Gradio_Interface():
         
         # 添加追踪控制变量
         self.tracking_enabled = False
-        self.tracking_status = "无"  # 存储追踪状态信息
+        self.tracking_status = "None"  # 存储追踪状态信息
         self.tracking_generator = None  # 存储追踪生成器
-        self.tracker_btn_text = "开启追踪"  # 追踪按钮文本状态
+        self.tracker_btn_text = "Start Tracking"  # 追踪按钮文本状态
 
         self.tracker_img_path = "./tmp/tracked_view.png"
         self.tracker_img_path_vlm = "./tmp/tracked_view_crop.png"
@@ -44,9 +44,9 @@ class Gradio_Interface():
     
     # Gradio Interface Core
     def _build_interface(self):
-        with gr.Blocks(title="自动降落程序 - 示例") as interface:
-            gr.Markdown("# 图片点击坐标标记器")
-            gr.Markdown("**外部进程重新加载**: 创建文件 `reload_trigger.txt` 可触发重新加载")
+        with gr.Blocks(title="Auto Landing System") as interface:
+            gr.Markdown("# Visual Scene Selector")
+            gr.Markdown("**External reload**: Create `reload_trigger.txt` to trigger a reload")
             # 获取初始图片
             self.current_image = self.load_frame(self.img_path)
             
@@ -56,62 +56,52 @@ class Gradio_Interface():
             with gr.Row():
                 with gr.Column():
                     self.image_display = gr.Image(
-                        label="点击图片来标记位置",
+                        label="Click on the target vertipad",
                         value=self.current_image,
                         interactive=True,
-                        # show_download_button=False
                     )
             with gr.Row():
                 with gr.Column():   
                     # 图片显示组件 1, 2
                     self.image_sam = gr.Image(
-                        label="SAM得到的图片",
+                        label="SAM Segmentation Result",
                         value=None,
                         interactive=False,
-                        # show_download_button=False
                     )
-                    # 显示点击坐标信息
                     self.coordinate_info = gr.Textbox(
-                        label="视觉分析窗口", 
-                        value="无",
+                        label="Visual Analysis",
+                        value="None",
                         lines=6,
                         interactive=False
                     )
-                    # tracking info
                     self.tracking_info = gr.Textbox(
-                        label="持续追踪信息",
-                        value="无",
+                        label="Tracking Info",
+                        value="None",
                         lines=6,
                         interactive=False
                     )
-                    # 安全分析窗口
                     self.safety_vlm_info = gr.Textbox(
-                        label="安全分析窗口", 
-                        value="无",
+                        label="Safety Analysis",
+                        value="None",
                         lines=6,
                         interactive=False
                     )
-                    # 重新加载按钮
-                    self.reload_btn = gr.Button("刷新图片")     
-                    # VLM 按钮
-                    self.safety_vlm_btn = gr.Button("SafetyVLM分析")
-                    self.tracker_btn = gr.Button("开启追踪")
-                    # 添加自动更新开关
-                    self.auto_update_checkbox = gr.Checkbox(label="启用自动更新", value=True)
+                    self.reload_btn = gr.Button("Refresh Image")
+                    self.safety_vlm_btn = gr.Button("Safety VLM Analysis")
+                    self.tracker_btn = gr.Button("Start Tracking")
+                    self.auto_update_checkbox = gr.Checkbox(label="Enable Auto Update", value=True)
                 
                 with gr.Column():
                     self.tracker_image = gr.Image(
-                        label="追踪图片",
+                        label="Tracking View",
                         value=None,
                         interactive=False,
-                        # show_download_button=False
                     )
-                    
+
                     self.image_to_vlm = gr.Image(
-                        label="VLM看到的图片",
+                        label="VLM Input View",
                         value=None,
                         interactive=False,
-                        # show_download_button=False
                     )
 
                     
@@ -158,11 +148,11 @@ class Gradio_Interface():
         if self.tracking_enabled:
             # 启动后台追踪线程
             threading.Thread(target=self.background_tracking, daemon=True).start()
-            self.tracking_status = "持续追踪已启动..."
-            self.tracker_btn_text = "停止追踪"
+            self.tracking_status = "Tracking started..."
+            self.tracker_btn_text = "Stop Tracking"
         else:
-            self.tracking_status = "持续追踪已停止"
-            self.tracker_btn_text = "开启追踪"
+            self.tracking_status = "Tracking stopped"
+            self.tracker_btn_text = "Start Tracking"
             # 删除追踪图片
             try:
                 if os.path.exists(self.tracker_img_path):
@@ -170,7 +160,7 @@ class Gradio_Interface():
                 if os.path.exists(self.tracker_img_path_vlm):
                     os.remove(self.tracker_img_path_vlm)
             except Exception as e:
-                print(f"删除追踪图片失败: {e}")
+                print(f"Failed to remove tracking images: {e}")
         
         return gr.Button(value=self.tracker_btn_text), self.tracking_status
 
@@ -180,10 +170,10 @@ class Gradio_Interface():
         if enabled:
             # 启动后台追踪线程
             threading.Thread(target=self.background_tracking, daemon=True).start()
-            self.tracking_status = "持续追踪已启动..."
+            self.tracking_status = "Tracking started..."
             return self.tracking_status
         else:
-            self.tracking_status = "持续追踪已停止"
+            self.tracking_status = "Tracking stopped"
             return self.tracking_status
     
     def background_tracking(self):
@@ -197,7 +187,7 @@ class Gradio_Interface():
                 self.tracking_status = status_msg
                 time.sleep(0.1)  # 避免更新过于频繁
         except Exception as e:
-            self.tracking_status = f"追踪出错: {str(e)}"
+            self.tracking_status = f"Tracking error: {str(e)}"
     
     def tracking_enabled_check(self):
         """检查追踪是否应该继续"""
@@ -220,7 +210,7 @@ class Gradio_Interface():
             else:
                 return None, None
         except Exception as e:
-            print(f"加载追踪图片失败: {e}")
+            print(f"Failed to load tracking image: {e}")
             return None, None
 
     def auto_update_all(self, auto_update_enabled):
@@ -243,7 +233,7 @@ class Gradio_Interface():
     def load_frame(self, img_pth):
         # 检测文件存在
         if not os.path.exists(img_pth):
-            return None, f"图片文件不存在: {img_pth}"
+            return None, f"Image file not found: {img_pth}"
         # 加载
         img = Image.open(img_pth)
         # 处理不同格式的图片

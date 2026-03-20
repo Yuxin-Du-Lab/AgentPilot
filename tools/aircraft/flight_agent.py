@@ -12,7 +12,7 @@
 # sys.path.append(project_root)
 
 # Import the FractFlow ToolTemplate
-from tools.aircraft.utils.self_logging import get_my_logger, MyLogger
+from utils.self_logging import get_my_logger, MyLogger
 # init logger
 from datetime import datetime
 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
