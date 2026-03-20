@@ -1,8 +1,6 @@
-# Agent-Pilot (tools/aircraft)
+# Agent-Pilot: A Visual Hybrid Intelligence Closed-Loop Framework for eVTOL Autonomous Landing
 
 This repository is prepared for running **Agent-Pilot** via `tools/aircraft`.
-
-For the detailed guide, see: `tools/aircraft/README.md`.
 
 ## Environment
 
