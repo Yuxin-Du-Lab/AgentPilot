@@ -2,6 +2,10 @@
 
 This repository is prepared for running **Agent-Pilot** via `tools/aircraft`.
 
+```bash
+git clone https://github.com/Yuxin-Du-Lab/AgentPilot.git
+```
+
 ## Environment
 
 ### Config .env
