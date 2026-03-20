@@ -9,7 +9,7 @@ For the detailed guide, see: `tools/aircraft/README.md`.
 ### Base env
 
 ```bash
-cd path/to/FractFlow-main/tools/aircraft
+cd path/to/AgentPilot/tools/aircraft
 
 uv venv
 source .venv/bin/activate
@@ -19,7 +19,7 @@ uv pip install torch torchvision torchaudio
 uv pip install einops easydict
 uv pip install watchdog opencv-contrib-python==4.11.0.86
 
-cd path/to/FractFlow-main
+cd path/to/AgentPilot
 uv pip install -e .
 ```
 
@@ -32,7 +32,7 @@ Download `sam_vit_b_01ec64.pth` and put it at:
 # terminal 1
 export CUDA_VISIBLE_DEVICES="AS NEED"
 
-cd path/to/FractFlow-main/tools/aircraft
+cd path/to/AgentPilot/tools/aircraft
 source .venv/bin/activate
 
 uv pip install -e ./sam_tools/segment-anything
@@ -50,7 +50,7 @@ Download `metric_video_depth_anything_vitl.pth` and put it at:
 
 ```bash
 # terminal 2
-cd path/to/FractFlow-main/tools/aircraft
+cd path/to/AgentPilot/tools/aircraft
 python -m msfs2024tools.capture_server
 ```
 
@@ -77,7 +77,7 @@ SAM_SERVER_PORT=7002
 
 ```bash
 # terminal 3
-cd path/to/FractFlow-main/tools/aircraft
+cd path/to/AgentPilot/tools/aircraft
 python app.py
 ```
 
@@ -85,8 +85,11 @@ python app.py
 
 ```bash
 # terminal 4
-cd path/to/FractFlow-main/tools/aircraft
+cd path/to/AgentPilot/tools/aircraft
 python flight_agent.py --query "fly"
 ```
+
+## Acknowledgment
+Thanks to [Fractflow](https://github.com/EnVision-Research/FractFlow).
 
 
