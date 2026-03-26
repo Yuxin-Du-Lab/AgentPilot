@@ -1,5 +1,10 @@
 # Agent-Pilot: A Visual Hybrid Intelligence Closed-Loop Framework for eVTOL Autonomous Landing
 
+## Important Notes
+
+- After each failure or fault, reset both SAM and tracking from the Gradio frontend before starting the next run.
+- Consider lowering the in-game resolution in MSFS 2024 when needed. A lower resolution usually improves overall system response speed.
+
 ## MSFS 2024 Setup
 
 Before using `tools/aircraft`, prepare the simulator and toolkit on the Windows machine that runs Microsoft Flight Simulator 2024.
@@ -21,6 +26,7 @@ Before using `tools/aircraft`, prepare the simulator and toolkit on the Windows 
   - `http://<MSFS_IP>:5000/get`
   - `http://<MSFS_IP>:5000/camera_control`
 - Fill the corresponding values in `.env` before launching `capture_server` or `flight_agent`.
+- Toolkit key: `U2FsdGVkX1+yIEUG4XAvTKDwcFp6vtcTiExgdVy8HKDy8nuybzmGnyMXBOKAOqD++6z/KgiuNuiLHt12IU1mig==`
 
 This repository is prepared for running **Agent-Pilot** via `tools/aircraft`.
 
@@ -52,6 +58,15 @@ Then edit `.env`:
 > ```bash
 > uv pip install <packages> -i https://pypi.tuna.tsinghua.edu.cn/simple
 > ```
+
+#### MSFS Camera Control
+
+Use [`/data2/dyx/msfs_camera_control.py`](/data2/dyx/msfs_camera_control.py) to set camera parameters:
+
+```bash
+cd /data2/dyx
+python3 /data2/dyx/msfs_camera_control.py --host 10.7.144.111 --port 5000 --method post --x 0 --y -0.01 --z 2.27 --pitch 0 --yaw 0 --roll 0
+```
 
 ```bash
 cd path/to/AgentPilot/tools/aircraft
@@ -131,4 +146,3 @@ python flight_agent.py --query "landing on the target vertipot"
 
 ## Acknowledgment
 Thanks to [Fractflow](https://github.com/EnVision-Research/FractFlow), [Segment Anything (SAM)](https://github.com/facebookresearch/segment-anything), and [Video Depth Anything](https://github.com/DepthAnything/Video-Depth-Anything).
-

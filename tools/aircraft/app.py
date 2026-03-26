@@ -6,7 +6,6 @@ import time
 import threading
 
 from sam_tools.sam_tool import SAM_TOOL
-from safety_tools.safety_vlm import safety_vlm
 
 # from safety_check.safty_mcp import Safety_VLM_Local
 from tracking_tools.tracking_tool import continue_tracking
@@ -85,7 +84,6 @@ class Gradio_Interface():
                         interactive=False
                     )
                     self.reload_btn = gr.Button("Refresh Image")
-                    self.safety_vlm_btn = gr.Button("Safety VLM Analysis")
                     self.tracker_btn = gr.Button("Start Tracking")
                     self.auto_update_checkbox = gr.Checkbox(label="Enable Auto Update", value=True)
                 
@@ -111,12 +109,6 @@ class Gradio_Interface():
                 outputs=[self.coordinate_info]
             )
 
-            self.safety_vlm_btn.click(
-                fn=safety_vlm,
-                inputs=None,
-                outputs=[self.safety_vlm_info]
-            )
-            
             self.reload_btn.click(
                 fn=self.auto_update_all,
                 inputs=None,
