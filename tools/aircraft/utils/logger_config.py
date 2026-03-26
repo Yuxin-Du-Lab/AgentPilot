@@ -3,32 +3,32 @@ import sys
 
 def setup_logger(name):
     """
-    设置统一的日志配置
+    Set up a unified logging configuration.
     
     Args:
-        name: 日志记录器的名称
+        name: Name of the logger
         
     Returns:
-        logging.Logger: 配置好的日志记录器
+        logging.Logger: Configured logger instance
     """
-    # 配置日志系统
+    # Configure the logging system
     logger = logging.getLogger(name)
     
-    # 如果logger已经有处理器，说明已经配置过，直接返回
+    # Return early if the logger has already been configured
     if logger.handlers:
         return logger
         
     logger.setLevel(logging.INFO)
     
-    # 创建控制台处理器
+    # Create a console handler
     console_handler = logging.StreamHandler(sys.stderr)
     console_handler.setLevel(logging.INFO)
     
-    # 设置日志格式
+    # Set the log format
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     console_handler.setFormatter(formatter)
 
-    # 添加处理器到logger
+    # Attach the handler to the logger
     logger.addHandler(console_handler)
 
     return logger

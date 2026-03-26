@@ -1,5 +1,5 @@
-# 从 JSON 文件恢复 MSFS2024 摄像机参数
-# 用法: python load_camera_params.py [camera_params.json]
+# Restore MSFS2024 camera parameters from a JSON file
+# Usage: python load_camera_params.py [camera_params.json]
 
 import requests
 import json
@@ -14,7 +14,7 @@ if API_URL_CAMERA_CTRL is None:
 
 
 def load_camera_params(input_path="./camera_params.json"):
-    """从 JSON 文件读取摄像机参数并通过 API 设置"""
+    """Read camera parameters from a JSON file and apply them through the API."""
     if not os.path.exists(input_path):
         print(f"文件不存在: {input_path}", file=sys.stderr)
         return

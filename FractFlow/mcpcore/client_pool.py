@@ -10,14 +10,14 @@ import logging
 from typing import Dict, Any, Optional, Tuple
 from contextlib import AsyncExitStack
 
-# 导入外部MCP库
+# Import the external MCP library
 import mcp  
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 logger = logging.getLogger(__name__)
 
-# 单例实例
+# Singleton instance
 _instance = None
 
 class MCPClientPool:
@@ -111,7 +111,7 @@ class MCPClientPool:
             logger.error(f"Error during cleanup: {e}")
             raise
 
-# 获取单例实例的函数
+# Function for retrieving the singleton instance
 def get_client_pool() -> MCPClientPool:
     """
     Get the singleton client pool instance.
@@ -122,4 +122,4 @@ def get_client_pool() -> MCPClientPool:
     global _instance
     if _instance is None:
         _instance = MCPClientPool()
-    return _instance 
+    return _instance

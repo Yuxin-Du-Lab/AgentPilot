@@ -5,7 +5,7 @@ Provides classes and functions for integrating with MCP servers
 and managing tool providers.
 """
 
-# 导出主要的类和函数
+# Export the main classes and functions
 from .client_pool import MCPClientPool, get_client_pool
 from .launcher import MCPLauncher
 from .tool_loader import MCPToolLoader
@@ -15,4 +15,4 @@ __all__ = [
     'get_client_pool',
     'MCPLauncher',
     'MCPToolLoader',
-] 
+]

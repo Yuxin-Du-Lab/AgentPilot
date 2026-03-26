@@ -5,65 +5,65 @@ import time
 import json
 from PIL import Image, ImageDraw
 from sam_tools.sam_tool import SAM_TOOL
-import asyncio  # 新增
+import asyncio  # Added
 
 
 def save_frames_to_video(frames, bbox_datas, video_len, output_path):
     """
-    将帧列表保存为视频，只保留图像下半部分
+    Save a list of frames as a video while keeping only the lower half of each image.
     
     Args:
-        frames: 图片帧列表
-        bbox_datas: 对应的bbox数据列表
-        video_len: 期望的视频长度（帧数）
-        output_path: 输出视频路径
+        frames: List of image frames
+        bbox_datas: Corresponding list of bbox data
+        video_len: Desired video length in frames
+        output_path: Output video path
     """
     if len(frames) == 0:
         return
         
-    # 如果帧数超过video_len，进行等距采样
+    # Uniformly sample frames if the frame count exceeds video_len
     if len(frames) > video_len:
         indices = np.linspace(0, len(frames)-1, video_len, dtype=int)
         frames = [frames[i] for i in indices]
         bbox_datas = [bbox_datas[i] for i in indices]
     
-    # 创建bbox_datas的深拷贝，并调整y坐标
+    # Deep-copy bbox data and adjust the y coordinate
     adjusted_bbox_datas = []
     for bbox_data in bbox_datas:
         adjusted_data = bbox_data.copy()
-        # 调整y坐标：减去0.5（上半部分），然后乘以2（因为高度减半）
+        # Adjust y: subtract 0.5 (top half) and multiply by 2 because the height is halved
         adjusted_data['bbox'] = adjusted_data['bbox'].copy()
         y = adjusted_data['bbox']['y']
         height = adjusted_data['bbox']['height']
         
-        if y >= 0.5:  # 如果在下半部分
+        if y >= 0.5:  # If the bbox is in the lower half
             adjusted_data['bbox']['y'] = (y - 0.5) * 2
             adjusted_data['bbox']['height'] = height * 2
-        else:  # 如果在上半部分，将其设为无效值
+        else:  # If it is in the upper half, mark it as invalid
             adjusted_data['bbox']['y'] = -1
             adjusted_data['bbox']['height'] = 0
             
         adjusted_bbox_datas.append(adjusted_data)
     
-    # 保存调整后的bbox数据
+    # Save the adjusted bbox data
     bbox_json_path = output_path.replace('.mp4', '_bbox.json')
     with open(bbox_json_path, 'w') as f:
         json.dump(adjusted_bbox_datas, f, indent=2)
     
-    # 获取第一帧的尺寸
+    # Get the first frame size
     height, width = frames[0].shape[:2]
     
-    # 裁剪每一帧，只保留下半部分
+    # Crop each frame to keep only the lower half
     cropped_frames = [frame[height//2:, :] for frame in frames]
     
-    # 获取裁剪后的尺寸
+    # Get the cropped frame size
     new_height = height // 2
     
-    # 创建视频写入器
+    # Create the video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, 1, (width, new_height))
     
-    # 写入帧
+    # Write frames
     for frame in cropped_frames:
         out.write(frame)
     
@@ -71,56 +71,56 @@ def save_frames_to_video(frames, bbox_datas, video_len, output_path):
 
 def init_tracker(initial_image_path, initial_mask_path):
     """
-    初始化跟踪器，返回tracker对象和初始边界框
+    Initialize the tracker and return the tracker object plus the initial bounding box.
     Args:
-        initial_image_path: 初始图片路径
-        initial_mask_path: 初始mask路径
+        initial_image_path: Initial image path
+        initial_mask_path: Initial mask path
     Returns:
-        tracker: 初始化好的CSRT跟踪器（或None）
-        bbox: 边界框 (x, y, w, h)（或None）
-        img_shape: 图片尺寸 (height, width)（或None）
-        msg: 状态信息字符串
+        tracker: Initialized CSRT tracker (or None)
+        bbox: Bounding box (x, y, w, h) (or None)
+        img_shape: Image dimensions (height, width) (or None)
+        msg: Status message string
     """
     if not os.path.exists(initial_image_path):
         return None, None, None, f"初始图片未找到: {initial_image_path}"
     if not os.path.exists(initial_mask_path):
         return None, None, None, f"初始mask未找到: {initial_mask_path}"
 
-    # 读取初始图片和mask
+    # Read the initial image and mask
     initial_image = cv2.imread(initial_image_path)
     initial_mask = cv2.imread(initial_mask_path, cv2.IMREAD_GRAYSCALE)
 
     if initial_image is None or initial_mask is None:
         return None, None, None, "无法读取初始图片或mask文件"
 
-    # 处理mask
+    # Process the mask
     initial_mask[initial_mask > 0] = 1
 
-    # 从mask中提取边界框
+    # Extract a bounding box from the mask
     contours, _ = cv2.findContours(initial_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours) == 0:
         return None, None, None, "mask中未找到有效轮廓"
 
-    # 找到最大的轮廓作为跟踪目标
+    # Use the largest contour as the tracking target
     largest_contour = max(contours, key=cv2.contourArea)
     bbox = cv2.boundingRect(largest_contour)
 
-    # 验证边界框是否在图像范围内
+    # Verify that the bounding box stays within image bounds
     x, y, w, h = bbox
     img_height, img_width = initial_image.shape[:2]
     if x < 0 or y < 0 or x + w > img_width or y + h > img_height:
-        # 裁剪边界框到图像范围内
+        # Clip the bounding box to the image bounds
         x = max(0, x)
         y = max(0, y)
         w = min(w, img_width - x)
         h = min(h, img_height - y)
         bbox = (x, y, w, h)
 
-    # 验证边界框尺寸
+    # Validate the bounding-box dimensions
     if w <= 0 or h <= 0:
         return None, None, None, f"无效的边界框尺寸: width={w}, height={h}"
 
-    # 创建CSRT跟踪器
+    # Create the CSRT tracker
     tracker = None
     try:
         tracker = cv2.legacy.TrackerCSRT_create()
@@ -133,10 +133,10 @@ def init_tracker(initial_image_path, initial_mask_path):
     if tracker is None:
         return None, None, None, "跟踪器创建失败"
 
-    # 确保边界框是浮点数格式
+    # Ensure the bounding box uses floating-point values
     bbox_float = tuple(float(v) for v in bbox)
 
-    # 初始化跟踪器
+    # Initialize the tracker
     success = tracker.init(initial_image, bbox_float)
     if success is None:
         success = True
@@ -147,29 +147,30 @@ def init_tracker(initial_image_path, initial_mask_path):
 
 def continue_tracking(should_continue_func=None, video_len=20):
     """
-    持续跟踪函数，使用初始图片和mask开始跟踪，然后不断从new_image_path读取新图片进行跟踪
+    Continuously track the target by starting from the initial image and mask,
+    then repeatedly reading new frames from new_image_path.
     
     Args:
-        should_continue_func: 一个函数，返回True时继续追踪，返回False时停止
-        video_len: 期望的视频长度（帧数）
+        should_continue_func: Function that returns True to continue and False to stop
+        video_len: Desired video length in frames
         
     Yields:
-        str: 追踪状态信息
+        str: Tracking status messages
     """
     initial_image_path = "./tmp/init_tracking_view.png"
     initial_mask_path = "./tmp/init_tracking_mask.png"
-    # 固定的新图片路径和输出路径
+    # Fixed input and output paths
     new_image_path = "./tmp/screenshots/current_view.png"
     output_path = "./tmp/tracked_view.png"
     video_output_path = "./tmp/key_frames_video.mp4"
-    # 检查video_output_path是否存在文件，若存在，则删除
+    # Remove the existing video output file if it exists
     if os.path.exists(video_output_path):
         os.remove(video_output_path)
     sam_tool = SAM_TOOL()
     new_image = None
     tracked_bbox = None
     try:
-        # 使用init_tracker函数初始化
+        # Initialize via init_tracker
         tracker, tracked_bbox, img_shape, msg = init_tracker(initial_image_path, initial_mask_path)
         if tracker is None:
             yield msg
@@ -178,31 +179,31 @@ def continue_tracking(should_continue_func=None, video_len=20):
         x, y, w, h = tracked_bbox
         img_height, img_width = img_shape
 
-        # 添加帧列表和bbox数据列表用于记录视频
+        # Store frames and bbox data for video generation
         frames = []
         bbox_datas = []
         
-        # 新增循环计数器
+        # Loop counter
         loop_count = 0
 
-        # 如果没有提供should_continue_func，只执行一次
+        # Run only once if should_continue_func is not provided
         if should_continue_func is None:
             should_continue = False
         else:
             should_continue = True
             
         while should_continue:
-            loop_count += 1  # 每次循环+1
+            loop_count += 1  # Increment once per loop
 
-            # 每10次循环重新初始化tracker
+            # Reinitialize the tracker every 10 loops
             if loop_count % 30 == 0:
-                # 计算bounding box中心点
+                # Compute the bounding-box center
                 if new_image is not None and tracked_bbox is not None:
                     x, y, w, h = tracked_bbox
                     center_x = int(x + w / 2)
                     center_y = int(y + h / 2)
                     points = (center_x, center_y)
-                    # 调用sam_tool.detect，传入上一帧图片和中心点
+                    # Call sam_tool.detect with the previous frame and center point
                     asyncio.run(sam_tool.detect(new_image, points))
                 tracker, tracked_bbox, img_shape, msg = init_tracker(initial_image_path, initial_mask_path)
                 if tracker is None:
@@ -211,25 +212,25 @@ def continue_tracking(should_continue_func=None, video_len=20):
                 else:
                     yield f"第{loop_count}次循环已重新初始化跟踪器"
             
-            # 检查是否应该继续
+            # Check whether tracking should continue
             if should_continue_func and not should_continue_func():
                 yield f"追踪已停止（第{len(frames)}帧）"
                 break
             
-            # 检查新图片是否存在
+            # Check whether the next image exists
             if not os.path.exists(new_image_path):
                 yield f"第{len(frames)+1}帧：新图片未找到，等待..."
                 time.sleep(0.5)
                 continue
             
-            # 读取新图片
+            # Read the next image
             new_image = cv2.imread(new_image_path)
             if new_image is None:
                 yield f"第{len(frames)+1}帧：无法读取新图片，跳过此帧"
                 time.sleep(0.5)
                 continue
             
-            # 更新跟踪器
+            # Update the tracker
             success, tracked_bbox = tracker.update(new_image)
             
             if not success:
@@ -253,16 +254,16 @@ def continue_tracking(should_continue_func=None, video_len=20):
                     json.dump(fail_data, f, indent=2)
                 break
             
-            # 绘制边界框并保存图片
+            # Draw the bounding box and save the image
             result_image = new_image.copy()
 
             
-            # 保存带边界框的图片
+            # Save the image with the bounding box
             cv2.imwrite(output_path, result_image)
             x, y, w, h = [int(v) for v in tracked_bbox]
             cv2.rectangle(result_image, (x, y), (x + w, y + h), (0, 0, 255), 4)
-            # crop result_image，最大不超过原图，x, y分开计算，crop后的图片中心为bounding box的中心，且图片大小为bounding box的1.2倍
-            # 计算crop区域，中心为bounding box中心，大小为1.2倍的bounding box，且不超过原图边界
+            # Crop result_image around the bbox center; crop size is 1.2x the bbox and never exceeds image bounds
+            # Compute the crop region centered on the bounding box
             crop_scale = 2
             crop_w = int(w * crop_scale)
             crop_h = int(h * crop_scale)
@@ -271,13 +272,13 @@ def continue_tracking(should_continue_func=None, video_len=20):
 
             img_h, img_w = result_image.shape[:2]
 
-            # 计算crop区域左上角和右下角坐标
+            # Compute the top-left and bottom-right crop coordinates
             crop_x1 = max(0, center_x - crop_w // 2)
             crop_y1 = max(0, center_y - crop_h // 2)
             crop_x2 = min(img_w, center_x + crop_w // 2)
             crop_y2 = min(img_h, center_y + crop_h // 2)
 
-            # 如果crop区域超出图片边界，调整crop区域
+            # Adjust the crop region if it exceeds image bounds
             if crop_x2 - crop_x1 != crop_w:
                 if crop_x1 == 0:
                     crop_x2 = min(img_w, crop_x1 + crop_w)
@@ -294,7 +295,7 @@ def continue_tracking(should_continue_func=None, video_len=20):
 
             cv2.imwrite(crop_image_path, crop_image)
             
-            # 保存边界框坐标为json文件
+            # Save bounding-box coordinates as a JSON file
             bbox_data = {
                 "frame": len(frames) + 1,
                 "bbox": {
@@ -306,17 +307,17 @@ def continue_tracking(should_continue_func=None, video_len=20):
                 "timestamp": time.time()
             }
             
-            # 每1秒记录一次图片和bbox数据（移到这里）
+            # Record the image and bbox data once per second (moved here)
             frames.append(new_image.copy())
-            bbox_datas.append(bbox_data)  # 现在保存的是当前帧的bbox数据
+            bbox_datas.append(bbox_data)  # Store bbox data for the current frame
             
-            # 当帧数达到或超过video_len时，保存视频和bbox数据
+            # Save the video and bbox data once the frame count reaches video_len
             if len(frames) >= video_len:
                 yield f"正在保存视频，当前帧数：{len(frames)}"
                 save_frames_to_video(frames, bbox_datas, video_len, video_output_path)
                 yield f"视频已保存到：{video_output_path}"
             
-            # 生成json文件路径（与图片路径对应）
+            # Build the JSON path corresponding to the image path
             json_output_path = output_path.replace('.png', '_bbox.json')
             with open(json_output_path, 'w') as f:
                 json.dump(bbox_data, f, indent=2)
@@ -325,11 +326,11 @@ def continue_tracking(should_continue_func=None, video_len=20):
             
             time.sleep(0.5)
             
-        # 如果是一次性执行
+        # One-shot execution is not supported
         if not should_continue_func:
             raise ValueError("不支持一次性执行")
             
-        # 函数结束前保存最后一次视频和bbox数据
+        # Save the last video and bbox data before exiting
         if frames:
             yield "正在保存最终视频..."
             save_frames_to_video(frames, bbox_datas, video_len, video_output_path)

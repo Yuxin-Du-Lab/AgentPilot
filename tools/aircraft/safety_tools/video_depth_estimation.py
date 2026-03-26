@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 from aircraft.utils.logger_config import setup_logger
 
-# 设置日志记录器
+# Set up the logger
 logger = setup_logger(__name__)
 
 from dotenv import load_dotenv
@@ -26,14 +26,14 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 ckpt_path = "./tmp/video_depth_anything_vitl.pth"
-# 配置模型参数
+# Configure model parameters
 model_config = {
     'encoder': 'vitl',
     'features': 256,
     'out_channels': [256, 512, 1024, 1024]
 }
 
-# 初始化和加载模型
+# Initialize and load the model
 video_depth_anything = VideoDepthAnything(**model_config)
 video_depth_anything.load_state_dict(
     torch.load(ckpt_path, map_location=DEVICE),
@@ -43,22 +43,22 @@ video_depth_anything = video_depth_anything.to(DEVICE).eval()
 
 def estimate_video_depth(video_path):
     """
-    从视频中估计深度信息
+    Estimate depth information from a video.
     
-    参数:
-        video_path (str): 输入视频的路径
-        input_size (int): 处理时的输入尺寸
-        max_res (int): 最大分辨率
+    Args:
+        video_path (str): Path to the input video
+        input_size (int): Input size used during processing
+        max_res (int): Maximum resolution
     
-    返回:
-        depths: 深度图序列
+    Returns:
+        depths: Sequence of depth maps
     """
     
     
-    # 读取视频帧
+    # Read video frames
     frames, target_fps = read_video_frames(video_path, process_length=-1, target_fps=-1, max_res=1280)
     
-    # 进行深度估计
+    # Run depth estimation
     depths, _ = video_depth_anything.infer_video_depth(
         frames,
         target_fps,
@@ -128,16 +128,16 @@ def parse_result(text: str):
     return result
 
 def stop_PID_control() -> str:
-    # return "保持PID控制"
+    # return "Keep PID control running"
     vid_path = "./tmp/key_frames_video.mp4"
     
     try:
-        # 检查视频文件是否存在
+        # Check whether the video file exists
         if not os.path.exists(vid_path):
             logger.warning(f"视频文件不存在: {vid_path}")
             return "是,PID控制正在运行"
             
-        # 检查视频文件大小
+        # Check the video file size
         if os.path.getsize(vid_path) == 0:
             logger.warning(f"视频文件大小为0: {vid_path}")
             return "是,PID控制正在运行"
@@ -151,33 +151,33 @@ def stop_PID_control() -> str:
         logger.info(f"深度数组形状: {depths.shape}, 长度: {len(depths)}, 单帧形状: {depths[0].shape}")
 
         bbox_json_path = "./tmp/key_frames_video_bbox.json"
-        # 计算bbox的中心点的depth
+        # Compute the depth at the bounding-box center
         with open(bbox_json_path, "r") as f:
             bbox_list = json.load(f)
         
         # center_depths = []
         avg_depths = []
         for frame_idx, frame_data in enumerate(bbox_list):
-            # 获取当前帧的深度图
+            # Get the depth map for the current frame
             depth = depths[frame_idx]
             
-            # 获取bbox信息并计算中心点
+            # Get bbox info and compute the center point
             bbox = frame_data["bbox"]
             img_height, img_width = depth.shape
             
-            # 计算bbox内所有像素的平均深度值
+            # Compute the average depth of all pixels inside the bbox
             bbox_x1 = int(bbox["x"] * img_width)
             bbox_y1 = int(bbox["y"] * img_height)
             bbox_x2 = int((bbox["x"] + bbox["width"]) * img_width)
             bbox_y2 = int((bbox["y"] + bbox["height"]) * img_height)
             
-            # 确保bbox坐标在有效范围内
+            # Clamp bbox coordinates to the valid range
             bbox_x1 = max(0, min(bbox_x1, img_width - 1))
             bbox_y1 = max(0, min(bbox_y1, img_height - 1))
             bbox_x2 = max(0, min(bbox_x2, img_width - 1))
             bbox_y2 = max(0, min(bbox_y2, img_height - 1))
             
-            # 提取bbox区域的深度值并计算平均值
+            # Extract bbox depth values and compute their average
             bbox_depth = depth[bbox_y1:bbox_y2, bbox_x1:bbox_x2]
             avg_depth = np.mean(bbox_depth)
             avg_depths.append(float(avg_depth))
@@ -186,11 +186,11 @@ def stop_PID_control() -> str:
         logger.warning(f"平均深度值: {avg_depths}")
         # diff_ratio = abs(center_depths[-1] - center_depths[0]) / (center_depths[0] + 1e-6)
 
-        # 检查avg_depths是否为空
+        # Check whether avg_depths is empty
         if not avg_depths:
             return "是,深度数据为空"
 
-        # 计算差异比率时增加更大的epsilon值
+        # Use a larger epsilon when computing the ratio of change
         diff_ratio = abs(min(avg_depths) - max(avg_depths)) / (max(avg_depths) + 1e-3)
         # 0.70 for rain
         # 0.50 for reset

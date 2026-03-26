@@ -21,11 +21,11 @@ class Gradio_Interface():
         self.server_port = server_port
         self.current_image = None
         
-        # 添加追踪控制变量
+        # Add tracking control state
         self.tracking_enabled = False
-        self.tracking_status = "None"  # 存储追踪状态信息
-        self.tracking_generator = None  # 存储追踪生成器
-        self.tracker_btn_text = "Start Tracking"  # 追踪按钮文本状态
+        self.tracking_status = "None"  # Store tracking status text
+        self.tracking_generator = None  # Store the tracking generator
+        self.tracker_btn_text = "Start Tracking"  # Track the button label state
 
         self.tracker_img_path = "./tmp/tracked_view.png"
         self.tracker_img_path_vlm = "./tmp/tracked_view_crop.png"
@@ -45,11 +45,11 @@ class Gradio_Interface():
         with gr.Blocks(title="Auto Landing System") as interface:
             gr.Markdown("# Visual Scene Selector")
             gr.Markdown("**External reload**: Create `reload_trigger.txt` to trigger a reload")
-            # 获取初始图片
+            # Load the initial image
             self.current_image = self.load_frame(self.img_path)
             
-            # 添加定时器组件
-            timer = gr.Timer(value=2.0)  # 每2秒触发一次
+            # Add the timer component
+            timer = gr.Timer(value=2.0)  # Trigger once every 2 seconds
             
             with gr.Row():
                 with gr.Column():
@@ -60,7 +60,7 @@ class Gradio_Interface():
                     )
             with gr.Row():
                 with gr.Column():   
-                    # 图片显示组件 1, 2
+                    # Image display components
                     self.image_sam = gr.Image(
                         label="SAM Segmentation Result",
                         value=None,
@@ -104,7 +104,7 @@ class Gradio_Interface():
 
                     
             
-            # 事件绑定
+            # Bind events
             self.image_display.select(
                 fn=self.sam_tool.detect,
                 inputs=[self.image_display],
@@ -123,14 +123,14 @@ class Gradio_Interface():
                 outputs=[self.image_display, self.tracker_image, self.image_to_vlm, self.image_sam, self.tracking_info]
             )
             
-            # 定时器事件绑定 - 更新图片和追踪信息
+            # Bind the timer event to refresh images and tracking info
             timer.tick(
                 fn=self.auto_update_all,
                 inputs=[self.auto_update_checkbox],
                 outputs=[self.image_display, self.tracker_image, self.image_to_vlm, self.image_sam, self.tracking_info]
             )
             
-            # 追踪按钮事件 - 点击切换追踪状态
+            # Bind the tracking button to toggle tracking state
             self.tracker_btn.click(
                 fn=self.toggle_tracking_with_button,
                 inputs=None,
@@ -140,18 +140,18 @@ class Gradio_Interface():
         self.interface = interface
 
     def toggle_tracking_with_button(self):
-        """通过按钮控制持续追踪的开启和关闭"""
+        """Toggle continuous tracking on or off via the button."""
         self.tracking_enabled = not self.tracking_enabled
         
         if self.tracking_enabled:
-            # 启动后台追踪线程
+            # Start the background tracking thread
             threading.Thread(target=self.background_tracking, daemon=True).start()
             self.tracking_status = "Tracking started..."
             self.tracker_btn_text = "Stop Tracking"
         else:
             self.tracking_status = "Tracking stopped"
             self.tracker_btn_text = "Start Tracking"
-            # 删除追踪图片
+            # Delete tracking images
             try:
                 if os.path.exists(self.tracker_img_path):
                     os.remove(self.tracker_img_path)
@@ -163,10 +163,10 @@ class Gradio_Interface():
         return gr.Button(value=self.tracker_btn_text), self.tracking_status
 
     def toggle_tracking(self, enabled):
-        """控制持续追踪的开启和关闭（保留用于兼容性）"""
+        """Enable or disable continuous tracking (kept for compatibility)."""
         self.tracking_enabled = enabled
         if enabled:
-            # 启动后台追踪线程
+            # Start the background tracking thread
             threading.Thread(target=self.background_tracking, daemon=True).start()
             self.tracking_status = "Tracking started..."
             return self.tracking_status
@@ -175,24 +175,24 @@ class Gradio_Interface():
             return self.tracking_status
     
     def background_tracking(self):
-        """后台持续追踪函数"""
+        """Background function for continuous tracking."""
         try:
             self.tracking_generator = continue_tracking(self.tracking_enabled_check)
             for status_msg in self.tracking_generator:
                 if not self.tracking_enabled:
                     break
-                # 更新状态变量
+                # Update the status variable
                 self.tracking_status = status_msg
-                time.sleep(0.1)  # 避免更新过于频繁
+                time.sleep(0.1)  # Avoid updating too frequently
         except Exception as e:
             self.tracking_status = f"Tracking error: {str(e)}"
     
     def tracking_enabled_check(self):
-        """检查追踪是否应该继续"""
+        """Check whether tracking should continue."""
         return self.tracking_enabled
     
     def load_sam_image(self):
-        """加载SAM图片"""
+        """Load the SAM image."""
         initial_image_path = "./tmp/init_tracking_view.png"
         initial_mask_path = "./tmp/init_tracking_mask.png"
         if not os.path.exists(initial_image_path) or not os.path.exists(initial_mask_path):
@@ -203,7 +203,7 @@ class Gradio_Interface():
         return overlay_img
 
     def load_tracker_image(self):
-        """加载追踪图片"""
+        """Load the tracking image."""
         try:
             if os.path.exists(self.tracker_img_path):
                 return Image.open(self.tracker_img_path), Image.open(self.tracker_img_path_vlm)
@@ -214,38 +214,38 @@ class Gradio_Interface():
             return None, None
 
     def auto_update_all(self, auto_update_enabled):
-        """自动更新所有组件的函数"""
-        # 更新主图片
+        """Automatically update all UI components."""
+        # Update the main image
         if auto_update_enabled:
             main_image = self.load_frame(self.img_path)
         else:
             main_image = gr.update()
         
-        # 更新追踪图片
+        # Update tracking images
         tracker_image, image_to_vlm = self.load_tracker_image()
         sam_image = self.load_sam_image()
         
-        # 更新追踪信息
+        # Update tracking info
         current_tracking_info = self.tracking_status
         
         return main_image, tracker_image, image_to_vlm, sam_image, current_tracking_info
 
     def load_frame(self, img_pth):
-        # 检测文件存在
+        # Check whether the file exists
         if not os.path.exists(img_pth):
             return None, f"Image file not found: {img_pth}"
-        # 加载
+        # Load the image
         img = Image.open(img_pth)
-        # 处理不同格式的图片
+        # Handle different image formats
         if img.mode == 'RGBA':
-            # 将RGBA转换为RGB
-            background = Image.new('RGB', img.size, (255, 255, 255))  # 白色背景
-            background.paste(img, mask=img.split()[-1])  # 使用alpha通道作为mask
+            # Convert RGBA to RGB
+            background = Image.new('RGB', img.size, (255, 255, 255))  # white background
+            background.paste(img, mask=img.split()[-1])  # use the alpha channel as a mask
             img = background
         elif img.mode not in ['RGB', 'L']:
-            # 其他格式转换为RGB
+            # Convert other formats to RGB
             img = img.convert('RGB')
-        # 保存到np array
+        # Store as a NumPy array
         img = np.array(img)
         self.img = img
         return img
@@ -253,7 +253,7 @@ class Gradio_Interface():
     def launch(self):
         self.interface.queue().launch(share=self.share, server_name=self.server_name, server_port=self.server_port)
 
-# 启动应用
+# Launch the app
 if __name__ == "__main__":
     my_gradio = Gradio_Interface()
     my_gradio.launch()

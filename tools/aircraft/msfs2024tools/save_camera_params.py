@@ -1,5 +1,5 @@
-# # 保存 MSFS2024 摄像机参数到 JSON 文件
-# # 用法: python save_camera_params.py [--x 0] [--y 0] [--z 10] [--pitch 0] [--roll 0] [--yaw 0] [-o camera_params.json]
+# # Save MSFS2024 camera parameters to a JSON file
+# # Usage: python save_camera_params.py [--x 0] [--y 0] [--z 10] [--pitch 0] [--roll 0] [--yaw 0] [-o camera_params.json]
 
 # import json
 # import sys
@@ -7,22 +7,22 @@
 
 
 # def save_camera_params(params, output_path="./camera_params.json"):
-#     """保存摄像机参数到 JSON 文件"""
+#     """Save camera parameters to a JSON file."""
 #     with open(output_path, "w", encoding="utf-8") as f:
 #         json.dump(params, f, ensure_ascii=False, indent=2)
-#     print(f"摄像机参数已保存到: {output_path}", file=sys.stderr)
-#     print(f"参数: {params}", file=sys.stderr)
+#     print(f"Camera parameters saved to: {output_path}", file=sys.stderr)
+#     print(f"Parameters: {params}", file=sys.stderr)
 
 
 # if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(description="保存 MSFS2024 摄像机参数到 JSON 文件")
-#     parser.add_argument("--x", type=float, default=0.0, help="摄像机 X 位置")
-#     parser.add_argument("--y", type=float, default=0.0, help="摄像机 Y 位置（高度）")
-#     parser.add_argument("--z", type=float, default=0.0, help="摄像机 Z 位置")
-#     parser.add_argument("--pitch", type=float, default=0.0, help="俯仰角")
-#     parser.add_argument("--roll", type=float, default=0.0, help="横滚角")
-#     parser.add_argument("--yaw", type=float, default=0.0, help="偏航角")
-#     parser.add_argument("-o", "--output", default="./camera_params.json", help="输出文件路径")
+#     parser = argparse.ArgumentParser(description="Save MSFS2024 camera parameters to a JSON file")
+#     parser.add_argument("--x", type=float, default=0.0, help="Camera X position")
+#     parser.add_argument("--y", type=float, default=0.0, help="Camera Y position (height)")
+#     parser.add_argument("--z", type=float, default=0.0, help="Camera Z position")
+#     parser.add_argument("--pitch", type=float, default=0.0, help="Pitch angle")
+#     parser.add_argument("--roll", type=float, default=0.0, help="Roll angle")
+#     parser.add_argument("--yaw", type=float, default=0.0, help="Yaw angle")
+#     parser.add_argument("-o", "--output", default="./camera_params.json", help="Output file path")
 #     args = parser.parse_args()
 
 #     params = {
@@ -35,11 +35,11 @@
 #     }
 #     save_camera_params(params, args.output)
 
-# 从 JSON 文件恢复 MSFS2024 摄像机参数
-# 用法: python load_camera_params.py [camera_params.json]
+# Restore MSFS2024 camera parameters from a JSON file
+# Usage: python load_camera_params.py [camera_params.json]
 
-# 从 JSON 文件恢复 MSFS2024 摄像机参数
-# 用法: python load_camera_params.py [camera_params.json]
+# Restore MSFS2024 camera parameters from a JSON file
+# Usage: python load_camera_params.py [camera_params.json]
 
 import requests
 import json
@@ -54,7 +54,7 @@ if API_URL_CAMERA_CTRL is None:
 
 
 def get_camera_params():
-    """从 API 获取摄像机参数"""
+    """Fetch camera parameters from the API."""
     try:
         response = requests.get(API_URL_CAMERA_CTRL)
         if response.status_code == 200:

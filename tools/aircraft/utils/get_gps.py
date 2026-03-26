@@ -6,19 +6,19 @@ API_URL_GET = os.getenv('API_URL_GET')
 
 def get_gps_heading():
     # try:
-    # 发送GET请求到API
+    # Send a GET request to the API
     response = requests.get(API_URL_GET)
 
-    # 检查响应状态码
+    # Check the response status code
     if response.status_code == 200:
-        # 解析JSON响应
+        # Parse the JSON response
         data = response.json()
 
-    # 打印所有参数
-    # print("⻜机状态参数:")
+    # Print all parameters
+    # print("Aircraft state parameters:")
     state_dict = {}
     for param in data:
-        # print(f"{param['name']}: {param['val']} {param['unit']} (可写: {param['writable']})")
+        # print(f"{param['name']}: {param['val']} {param['unit']} (writable: {param['writable']})")
         state_dict[param['name']] = param
 
     # print(state_dict['PLANE_LATITUDE'])

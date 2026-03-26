@@ -9,7 +9,7 @@ import traceback
 from typing import Optional, Dict, Any
 from .logging_utils import get_logger
 
-# 使用新的日志工具替代基础配置
+# Use the newer logging utility instead of the basic configuration
 logger = get_logger(__name__)
 
 class AgentError(Exception):
@@ -101,4 +101,4 @@ def create_error_response(error: Exception) -> Dict[str, Any]:
                 "tool_calls": None
             }
         }]
-    } 
+    }

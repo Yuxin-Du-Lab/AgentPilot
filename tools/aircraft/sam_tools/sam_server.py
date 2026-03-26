@@ -13,12 +13,12 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# 初始化SAM模型
+# Initialize the SAM model
 def initialize_sam():
-    # 下载SAM模型权重文件到本地
-    # 这里使用vit_h模型，您可以根据需要选择其他版本
+    # Download the SAM checkpoint locally
+    # This uses the vit_b model; switch versions if needed
     model_type = "vit_b"
-    sam_checkpoint = "./tmp/sam_vit_b_01ec64.pth"  # 需要下载对应的权重文件
+    sam_checkpoint = "./tmp/sam_vit_b_01ec64.pth"  # The matching checkpoint file must be downloaded first
     device = "cuda" if torch.cuda.is_available() else "cpu"
     
     sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
@@ -26,12 +26,12 @@ def initialize_sam():
     predictor = SamPredictor(sam)
     return predictor
 
-# 全局变量存储SAM预测器
+# Global variable used to store the SAM predictor
 predictor = None
 
 @app.route('/initialize', methods=['POST'])
 def initialize():
-    """初始化SAM模型"""
+    """Initialize the SAM model."""
     global predictor
     try:
         if predictor is not None:
@@ -44,28 +44,28 @@ def initialize():
 
 @app.route('/segment', methods=['POST'])
 def segment_image():
-    """处理图像分割请求"""
+    """Handle an image segmentation request."""
     global predictor
     
     if predictor is None:
         return jsonify({"status": "error", "message": "SAM模型未初始化"})
     
     try:
-        # 获取请求数据
+        # Get request data
         data = request.json
         image_data = data.get('image')
         prompt_points = data.get('prompt_points', [])
         prompt_labels = data.get('prompt_labels', [])
         
-        # 解码base64图像
+        # Decode the base64 image
         image_bytes = base64.b64decode(image_data)
         image = Image.open(io.BytesIO(image_bytes))
         image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         
-        # 设置图像到预测器
+        # Set the image on the predictor
         predictor.set_image(image)
         
-        # 执行分割
+        # Run segmentation
         if prompt_points:
             input_points = np.array(prompt_points)
             input_labels = np.array(prompt_labels) if prompt_labels else np.ones(len(prompt_points))
@@ -76,13 +76,13 @@ def segment_image():
                 multimask_output=True,
             )
         else:
-            # 如果没有提供点击点，返回错误
+            # Return an error if no prompt point is provided
             return jsonify({"status": "error", "message": "需要提供prompt点"})
         
-        # 选择最佳mask（得分最高的）
+        # Select the best mask (highest score)
         best_mask = masks[np.argmax(scores)]
         
-        # 将mask转换为base64
+        # Convert the mask to base64
         mask_uint8 = (best_mask * 255).astype(np.uint8)
         _, buffer = cv2.imencode('.png', mask_uint8)
         mask_base64 = base64.b64encode(buffer).decode('utf-8')
@@ -98,7 +98,7 @@ def segment_image():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """健康检查接口"""
+    """Health check endpoint."""
     return jsonify({"status": "healthy", "model_loaded": predictor is not None})
 
 if __name__ == '__main__':

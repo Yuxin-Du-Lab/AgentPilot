@@ -243,9 +243,9 @@ class ToolTemplate:
         
         # Characteristic files that indicate project root
         root_indicators = [
-            'pyproject.toml',  # 最可靠的项目根标识
-            '.git',            # 版本控制根目录
-            'setup.py'         # Python包根目录
+            'pyproject.toml',  # Most reliable project-root marker
+            '.git',            # Version-control root directory
+            'setup.py'         # Python package root directory
         ]
         
         # Search upwards from current directory
@@ -415,4 +415,4 @@ class ToolTemplate:
         else:
             # Default: MCP Server mode
             print(f"Starting {cls.__name__} in MCP Server mode.")
-            cls._run_mcp_server() 
+            cls._run_mcp_server()

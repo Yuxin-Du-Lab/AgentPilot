@@ -81,10 +81,10 @@ def safety_vlm():
     
     
     while True:
-        # 如果signal_path存在，则remove
+        # Remove signal_path if it already exists
         if os.path.exists(signal_path):
             os.remove(signal_path)
-        # 如果signal_path不存在，则等待其存在
+        # Wait for signal_path to appear if it does not exist
         while not os.path.exists(signal_path):
             yield "等待控制信号"
             time.sleep(1)

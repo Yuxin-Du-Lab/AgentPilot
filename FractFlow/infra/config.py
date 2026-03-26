@@ -20,17 +20,17 @@ class ConfigManager:
     
     def __init__(
         self,
-        # Provider配置
+        # Provider configuration
         provider: str = 'deepseek',
         
-        # DeepSeek配置
+        # DeepSeek configuration
         deepseek_api_key: Optional[str] = None,
         deepseek_base_url: str = 'https://api.deepseek.com',
         deepseek_model: str = 'deepseek-chat',
         deepseek_max_tokens: int = 4096,
         deepseek_temperature: float = 1.0,
         
-        # OpenAI配置
+        # OpenAI configuration
         openai_api_key: Optional[str] = None,
         openai_base_url: Optional[str] = None,
         openai_model: str = 'gpt-4',
@@ -38,26 +38,26 @@ class ConfigManager:
         openai_max_tokens: int = 4096,
         openai_temperature: float = 1.0,
         
-        # OpenRouter配置
+        # OpenRouter configuration
         openrouter_api_key: Optional[str] = None,
         openrouter_base_url: str = 'https://openrouter.ai/api/v1',
         openrouter_model: str = 'openai/gpt-4o',
         openrouter_max_tokens: int = 4096,
         openrouter_temperature: float = 1.0,
         
-        # Qwen配置
+        # Qwen configuration
         qwen_api_key: Optional[str] = None,
         qwen_base_url: str = 'https://dashscope.aliyuncs.com/compatible-mode/v1',
         qwen_model: str = 'qwen-plus',
         qwen_max_tokens: int = 4096,
         qwen_temperature: float = 1.0,
         
-        # Agent行为配置
+        # Agent behavior configuration
         max_iterations: int = 10,
         custom_system_prompt: str = '',
         call_path: str = '',
         
-        # 工具调用配置
+        # Tool-calling configuration
         tool_calling_max_retries: int = 5,
         tool_calling_base_url: str = 'https://api.deepseek.com',
         tool_calling_model: str = 'deepseek-chat',
@@ -68,38 +68,38 @@ class ConfigManager:
         Initialize the config manager with configuration parameters.
         
         Args:
-            provider: 模型提供商，可选: 'deepseek', 'openai', 'qwen'
-            deepseek_api_key: DeepSeek API密钥，从环境变量DEEPSEEK_API_KEY自动读取
-            deepseek_base_url: DeepSeek API基础URL
-            deepseek_model: DeepSeek模型名称，推荐: 'deepseek-chat'
-            deepseek_max_tokens: DeepSeek最大token数
-            deepseek_temperature: DeepSeek温度参数，控制输出随机性
-            openai_api_key: OpenAI API密钥，从环境变量COMPLETION_API_KEY自动读取
-            openai_base_url: OpenAI API基础URL
-            openai_model: OpenAI模型名称
-            openai_tool_calling_model: OpenAI工具调用专用模型
-            openai_max_tokens: OpenAI最大token数
-            openai_temperature: OpenAI温度参数
-            openrouter_api_key: OpenRouter API密钥，从环境变量OPENROUTER_API_KEY自动读取
-            openrouter_base_url: OpenRouter API基础URL
-            openrouter_model: OpenRouter模型名称，推荐: 'openai/gpt-4o'
-            openrouter_max_tokens: OpenRouter最大token数
-            openrouter_temperature: OpenRouter温度参数
-            qwen_api_key: Qwen API密钥，从环境变量QWEN_API_KEY自动读取
-            qwen_base_url: Qwen API基础URL
-            qwen_model: Qwen模型名称
-            qwen_max_tokens: Qwen最大token数
-            qwen_temperature: Qwen温度参数
-            max_iterations: Agent最大迭代次数，影响复杂任务处理深度
-            custom_system_prompt: 自定义系统提示，用于调整Agent行为风格
-            call_path: 调用路径，用于日志记录层次结构
-            tool_calling_max_retries: 工具调用最大重试次数
-            tool_calling_base_url: 工具调用API基础URL
-            tool_calling_model: 工具调用使用的模型
-            tool_calling_version: 工具调用版本，'stable'更稳定，'turbo'更快
-            tool_calling_temperature: 工具调用温度参数
+            provider: Model provider, one of 'deepseek', 'openai', or 'qwen'
+            deepseek_api_key: DeepSeek API key, auto-loaded from DEEPSEEK_API_KEY when omitted
+            deepseek_base_url: Base URL for the DeepSeek API
+            deepseek_model: DeepSeek model name, recommended: 'deepseek-chat'
+            deepseek_max_tokens: Maximum number of tokens for DeepSeek
+            deepseek_temperature: DeepSeek temperature parameter controlling randomness
+            openai_api_key: OpenAI API key, auto-loaded from COMPLETION_API_KEY when omitted
+            openai_base_url: Base URL for the OpenAI API
+            openai_model: OpenAI model name
+            openai_tool_calling_model: OpenAI model dedicated to tool calling
+            openai_max_tokens: Maximum number of tokens for OpenAI
+            openai_temperature: OpenAI temperature parameter
+            openrouter_api_key: OpenRouter API key, auto-loaded from OPENROUTER_API_KEY when omitted
+            openrouter_base_url: Base URL for the OpenRouter API
+            openrouter_model: OpenRouter model name, recommended: 'openai/gpt-4o'
+            openrouter_max_tokens: Maximum number of tokens for OpenRouter
+            openrouter_temperature: OpenRouter temperature parameter
+            qwen_api_key: Qwen API key, auto-loaded from QWEN_API_KEY when omitted
+            qwen_base_url: Base URL for the Qwen API
+            qwen_model: Qwen model name
+            qwen_max_tokens: Maximum number of tokens for Qwen
+            qwen_temperature: Qwen temperature parameter
+            max_iterations: Maximum number of agent iterations, which affects complex-task depth
+            custom_system_prompt: Custom system prompt used to adjust agent behavior
+            call_path: Call path used for logging hierarchy
+            tool_calling_max_retries: Maximum number of tool-calling retries
+            tool_calling_base_url: Base URL for the tool-calling API
+            tool_calling_model: Model used for tool calling
+            tool_calling_version: Tool-calling version; 'stable' is more reliable and 'turbo' is faster
+            tool_calling_temperature: Temperature parameter for tool calling
         """
-        # 自动从环境变量读取API密钥
+        # Automatically read API keys from environment variables
         if deepseek_api_key is None:
             deepseek_api_key = os.getenv('DEEPSEEK_API_KEY')
         if openai_api_key is None:
@@ -109,7 +109,7 @@ class ConfigManager:
         if qwen_api_key is None:
             qwen_api_key = os.getenv('QWEN_API_KEY')
         
-        # 构建内部配置字典结构
+        # Build the internal configuration dictionary
         self._config = {
             'openai': {
                 'api_key': openai_api_key,
@@ -290,4 +290,4 @@ class ConfigManager:
         Returns:
             The current call path as a string
         """
-        return self.get('agent.call_path', '') 
+        return self.get('agent.call_path', '')

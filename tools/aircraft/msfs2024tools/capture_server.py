@@ -1,64 +1,64 @@
-import requests  # 导入requests库，用于发送HTTP请求
-from datetime import datetime  # 导入datetime模块，用于获取当前时间
-import time  # 导入time模块，用于延时
-import os  # 导入os模块，用于文件和路径操作
-from dotenv import load_dotenv  # 导入dotenv库，用于加载环境变量
-load_dotenv()  # 加载环境变量
-API_URL_CAMERA = os.getenv('API_URL_CAMERA')  # 从环境变量中获取相机API端点URL
+import requests  # Import requests for sending HTTP requests
+from datetime import datetime  # Import datetime for generating timestamps
+import time  # Import time for delays
+import os  # Import os for file and path operations
+from dotenv import load_dotenv  # Import dotenv for loading environment variables
+load_dotenv()  # Load environment variables
+API_URL_CAMERA = os.getenv('API_URL_CAMERA')  # Read the camera API endpoint from the environment
 
 def capture_camera_image(image_save_path='./tmp/screenshots/current_view.png', 
                          api_url=API_URL_CAMERA):
     """
-    从API端点获取相机图像并保存到指定路径
+    Fetch a camera image from the API endpoint and save it to the target path.
     
-    参数:
-        image_save_path: 图像保存路径，默认为'./tmp/screenshots/current_view.png'
-        api_url: API端点URL，默认为API_URL_CAMERA
+    Args:
+        image_save_path: Path for saving the image, defaults to './tmp/screenshots/current_view.png'
+        api_url: Camera API endpoint, defaults to API_URL_CAMERA
     
-    返回:
-        bool: 成功返回True，失败返回False
+    Returns:
+        bool: True on success, False on failure
     """
     try:
-        # 发送GET请求获取图像数据，stream=True允许流式接收大文件
+        # Send a GET request for the image data; stream=True helps with large responses
         response = requests.get(api_url, stream=True, timeout=10)
         
-                # 检查响应状态码是否为200（成功）
+                # Check whether the response status code indicates success
         if response.status_code == 200:
-            # 获取当前时间并格式化为字符串
+            # Generate a formatted timestamp string
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             
-            # 创建临时文件路径（在同一目录下，添加.tmp后缀）
+            # Create a temporary file path in the same directory with a .tmp suffix
             temp_filename = image_save_path + '.tmp'
             
-            # 确保目标目录存在
+            # Ensure the target directory exists
             os.makedirs(os.path.dirname(image_save_path), exist_ok=True)
             
-            # 以二进制写入模式打开临时文件
+            # Open the temporary file in binary write mode
             with open(temp_filename, 'wb') as f:
-                # 按块读取响应内容并写入临时文件，减少内存使用
+                # Write the response in chunks to reduce memory usage
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         f.write(chunk)
             
-            # 文件完全写入后，原子性地重命名为最终文件名
-            # 这个操作是原子性的，可以避免读取到不完整的文件
+            # Atomically rename the fully written temp file to the final filename
+            # This avoids reading a partially written file
             os.rename(temp_filename, image_save_path)
             
-            # 打印成功信息
+            # Print success information
             print(f"[{timestamp}] Image saved successfully as {image_save_path}")
             return True
         else:
-            # 打印错误信息
+            # Print error information
             print(f"Error: Received status code {response.status_code}")
             print(f"Response: {response.text}")
             return False
             
     except requests.exceptions.RequestException as e:
-        # 捕获网络请求异常
+        # Catch network request exceptions
         print(f"Request error: {e}")
         return False
     except IOError as e:
-        # 捕获文件写入异常
+        # Catch file write exceptions
         print(f"File I/O error: {e}")
         return False
 
@@ -69,14 +69,14 @@ if __name__ == '__main__':
     
     try:
         while True:
-            # 调用函数捕获图像
+            # Capture an image
             capture_camera_image()
             
-            # 等待1秒
+            # Wait for 1 second
             time.sleep(1)
             
     except KeyboardInterrupt:
-        # 捕获Ctrl+C中断信号
+        # Handle Ctrl+C interruption
         print("\n程序已停止")
 
 

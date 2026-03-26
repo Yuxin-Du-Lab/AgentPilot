@@ -14,13 +14,13 @@ Notes:
 """
 from __future__ import annotations
 
-# ==================== 在这里填默认路径/提示词（可不传命令行参数） ====================
-# 命令行参数会覆盖这里的默认值。
+# ==================== Fill in default paths/prompts here (CLI arguments are optional) ====================
+# Command-line arguments will override these defaults.
 DEFAULT_IMAGE_PATH = ""  # set via --image
 
 
 DEFAULT_BBOX_JSON_PATH = ""  # set via --bbox
-# 例如: "/data2/.../tracking_logs/2026-01-20 16:35:58_tracked_view_bbox.json"
+# Example: "/data2/.../tracking_logs/2026-01-20 16:35:58_tracked_view_bbox.json"
 
 DEFAULT_PROMPT = "Describe what you see in the frame and whether it is safe to continue the landing."
 
@@ -31,7 +31,7 @@ SAM_MASK_PATH = ""  # optional, set via --sam-mask
 
 
 
-# 默认行为：与 evaluate_1.py 一致，先画框再送入 safety_vlm
+# Default behavior: match evaluate_1.py by drawing the box before sending it to safety_vlm
 DEFAULT_DRAW = True
 # ============================================================================
 

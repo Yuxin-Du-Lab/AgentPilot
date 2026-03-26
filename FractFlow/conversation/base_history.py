@@ -288,10 +288,10 @@ class ConversationHistory(BaseConversationHistory):
         """
         history_output = self.format_debug_output()
         
-        # 将历史记录分成多行记录，保持格式
+        # Split the history into multiple lines while preserving formatting
         log_func = getattr(logger, logging.getLevelName(level).lower(), logger.debug)
         
-        # 记录带有横幅的标题
+        # Record the banner-style header
         log_func(f"===== {prefix} START =====")
         log_func(history_output)
-        log_func(f"===== {prefix} END =====") 
+        log_func(f"===== {prefix} END =====")

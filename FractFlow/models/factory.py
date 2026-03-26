@@ -24,7 +24,7 @@ def create_model(provider: Optional[str] = None, config: Optional[ConfigManager]
         ImportError: If the specified provider module cannot be loaded
         ValueError: If the specified provider is not supported
     """
-    # 如果没有提供config，创建默认config
+    # Create a default config when none is provided
     if config is None:
         config = ConfigManager()
     
@@ -61,4 +61,4 @@ def create_model(provider: Optional[str] = None, config: Optional[ConfigManager]
         raise NotImplementedError("OpenAI provider support is not yet implemented")
     else:
         logger.error(f"Unsupported provider", {"provider": provider})
-        raise ValueError(f"Unsupported AI provider: {provider}") 
+        raise ValueError(f"Unsupported AI provider: {provider}")

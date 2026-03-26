@@ -16,7 +16,7 @@ class SAMClient:
         self.initialize_server()
         
     def initialize_server(self):
-        """初始化服务器上的SAM模型"""
+        """Initialize the SAM model on the server."""
         try:
             response = requests.post(f"{self.server_url}/initialize")
             result = response.json()
@@ -27,7 +27,7 @@ class SAMClient:
             return False
     
     def check_health(self):
-        """检查服务器健康状态"""
+        """Check the server health status."""
         try:
             response = requests.get(f"{self.server_url}/health")
             result = response.json()
@@ -45,25 +45,25 @@ class SAMClient:
     
     def segment_image(self, image, prompt_points, prompt_labels=None):
         """
-        发送图像分割请求
+        Send an image segmentation request.
         
         Args:
-            image_path: 图像文件路径
-            prompt_points: 提示点列表 [[x1, y1], [x2, y2], ...]
-            prompt_labels: 提示点标签列表 [1, 0, 1, ...] (1为前景，0为背景)
+            image_path: Path to the image file
+            prompt_points: List of prompt points [[x1, y1], [x2, y2], ...]
+            prompt_labels: List of prompt labels [1, 0, 1, ...] (1 for foreground, 0 for background)
         """
         try:
-            # 编码图像
+            # Encode the image
             image_base64 = self.encode_image(image)
             
-            # 准备请求数据
+            # Prepare the request payload
             data = {
                 "image": image_base64,
                 "prompt_points": prompt_points,
                 "prompt_labels": prompt_labels or [1] * len(prompt_points)
             }
             
-            # 发送请求
+            # Send the request
             response = requests.post(
                 f"{self.server_url}/segment",
                 json=data,
@@ -84,7 +84,7 @@ class SAMClient:
             return None
     
     def decode_mask(self, mask_base64):
-        """将base64编码的mask解码为numpy数组"""
+        """Decode a base64-encoded mask into a NumPy array."""
         mask_bytes = base64.b64decode(mask_base64)
         mask = cv2.imdecode(np.frombuffer(mask_bytes, np.uint8), cv2.IMREAD_GRAYSCALE)
         return mask
@@ -92,16 +92,16 @@ class SAMClient:
 
 
 def sam_request(client: SAMClient, image, prompt_points):
-    # 检查服务器健康状态
+    # Check the server health status
     if not client.check_health():
         print("服务器不可用，请先启动服务器")
         return
     
-    # 初始化SAM模型
+    # Initialize the SAM model
     if not client.initialize_server():
         print("模型初始化失败")
         return
 
-    # 执行分割
+    # Run segmentation
     mask = client.segment_image(image, prompt_points, None)
     return mask

@@ -10,7 +10,7 @@ from threading import Lock
 from typing import Optional
 
 def load_log_path() -> str:
-    """加载日志文件路径"""
+    """Load the log file path."""
     try:
         with open('./tmp/log_path.txt', 'r', encoding='utf-8') as f:
             log_path = f.read().strip()
@@ -63,10 +63,10 @@ class MyLogger:
 
     def _format_message(self, message: str) -> str:
         """
-        格式化日志消息
-        :param level: 日志级别
-        :param message: 日志消息
-        :return: 格式化后的消息
+        Format a log message.
+        :param level: Log level
+        :param message: Log message
+        :return: Formatted message
         """
         gps, heading_str = get_gps_heading()
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -74,8 +74,8 @@ class MyLogger:
     
     def _write_log(self, message: str):
         """
-        写入日志到文件（线程安全）
-        :param message: 日志消息
+        Write a log entry to the file in a thread-safe way.
+        :param message: Log message
         """
         formatted_message = self._format_message(message)
         
@@ -87,14 +87,14 @@ class MyLogger:
                 print(f"写入日志失败: {e}", file=sys.stderr)
     
     def info(self, message: str):
-        """记录 INFO 级别日志"""
+        """Record an INFO-level log entry."""
         self._write_log(message.replace('\n', ' '))
         # self.logger.info(message)
     
     def set_log_path(self, log_path: str):
         """
-        动态修改日志文件路径
-        :param log_path: 新的日志文件路径
+        Update the log file path dynamically.
+        :param log_path: New log file path
         """
         with self._lock:
             self.log_path = log_path
@@ -145,9 +145,9 @@ class MyLogger:
         self.info(f"[VLM Decision] {explanation}")
 
 
-# 提供全局访问函数
+# Provide a global accessor
 def get_my_logger() -> MyLogger:
-    """获取日志记录器实例"""
+    """Get the logger instance."""
     log_path = load_log_path()
     logger = MyLogger()
     logger.set_log_path(log_path)

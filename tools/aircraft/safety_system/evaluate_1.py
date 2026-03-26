@@ -9,11 +9,11 @@ GLOBAL_MAX_TIME = None
 
 def parse_log_line(line):
     """
-    解析单行日志，返回包含TIME、GPS、HEADING和info的字典
+    Parse a single log line and return a dictionary containing TIME, GPS, HEADING, and info.
     """
     result = {}
     
-    # 解析TIME
+    # Parse TIME
     time_match = re.search(r'TIME\[(.*?)\]', line)
     if time_match:
         result['TIME'] = time_match.group(1)
@@ -23,7 +23,7 @@ def parse_log_line(line):
         epoch = datetime(2025, 1, 1)
         result['TIME_seconds'] = int((dt - epoch).total_seconds())
 
-    # 解析GPS
+    # Parse GPS
     gps_match = re.search(r'GPS\[LONGITUDE:([\d.]+),\s*LATITUDE:([\d.]+),\s*ALTITUDE:([\d.]+)\]', line)
     if gps_match:
         result['GPS'] = {
@@ -32,7 +32,7 @@ def parse_log_line(line):
             'ALTITUDE': float(gps_match.group(3))
         }
     
-    # 解析HEADING
+    # Parse HEADING
     heading_match = re.search(r'HEADING\[True Heading:([\d.]+),\s*Magnetic Heading:([\d.]+)\]', line)
     if heading_match:
         result['HEADING'] = {
@@ -40,7 +40,7 @@ def parse_log_line(line):
             'Magnetic Heading': float(heading_match.group(2))
         }
     
-    # 解析info（剩余的文本信息）
+    # Parse info (the remaining text content)
     info_match = re.search(r'HEADING\[.*?\]\s+(.+)$', line)
     if info_match:
         result['info'] = info_match.group(1).strip()
@@ -56,10 +56,10 @@ def load_log(logdir):
     global GLOBAL_START_TIME
     global GLOBAL_MAX_TIME
 
-    # 解析每一行
+    # Parse each line
     parsed_logs = []
     for line in lines:
-        if line.strip():  # 跳过空行
+        if line.strip():  # Skip empty lines
             parsed_data = parse_log_line(line)
             parsed_logs.append(parsed_data)
             if GLOBAL_START_TIME is None and 'TIME_seconds' in parsed_data:
@@ -182,7 +182,7 @@ def find_key_event_time(parsed_logs, key_info):
 
 
 
-# VLM 看SAM结果
+# VLM review of the SAM result
 import cv2
 import numpy as np
 from os.path import join
@@ -192,7 +192,7 @@ def feed_sam_vlm(logdir):
     sam_mask_path = join(logdir, 'init_tracking_mask.png')
     sam_bounding_box_image_path = join(logdir, 'init_tracking_bounding_box.png')
     
-    # 加载图像和mask
+    # Load the image and mask
     image = cv2.imread(sam_image_path)
     mask = cv2.imread(sam_mask_path, cv2.IMREAD_GRAYSCALE)
     
@@ -201,24 +201,24 @@ def feed_sam_vlm(logdir):
     if mask is None:
         raise FileNotFoundError(f"Mask not found: {sam_mask_path}")
     
-    # 从mask中提取边界框
-    # 找到mask中非零像素的坐标
+    # Extract the bounding box from the mask
+    # Find coordinates of non-zero pixels in the mask
     coords = np.column_stack(np.where(mask > 0))
     
     if len(coords) == 0:
         raise ValueError("Mask is empty, no object found")
     
-    # 获取边界框坐标 (注意OpenCV使用的是 x, y 坐标系)
+    # Get bounding-box coordinates (note that OpenCV uses the x, y coordinate system)
     y_min, x_min = coords.min(axis=0)
     y_max, x_max = coords.max(axis=0)
     
-    # 在图像上绘制矩形框
+    # Draw the bounding box on the image
     result_image = image.copy()
     cv2.rectangle(result_image, (x_min, y_min), (x_max, y_max), 
-                  color=(0, 0, 255),  # 红色
+                  color=(0, 0, 255),  # red
                   thickness=20)
     
-    # 保存结果图像
+    # Save the result image
     cv2.imwrite(sam_bounding_box_image_path, result_image)
     # TODO
     sam_vlm_prompt = '''
@@ -227,7 +227,7 @@ def feed_sam_vlm(logdir):
     safety_vlm_content = safety_vlm(sam_bounding_box_image_path, sam_vlm_prompt)
     return safety_vlm_content
 
-# VLM 看tracking结果
+# VLM review of the tracking result
 def feed_tracking_vlm(parsed_tracking_logs, check_second):
     # find parsed_tracking_logs with abs(TIME_seconds-check_second)<5 and nearest
     nearest_log = find_nearest_log(parsed_tracking_logs, check_second)
@@ -258,7 +258,7 @@ def feed_tracking_vlm(parsed_tracking_logs, check_second):
     safety_vlm_content = safety_vlm(tracking_bounding_box_image_path, tracking_vlm_prompt)
     return safety_vlm_content
 
-# VLM 看对准度结果
+# VLM review of the alignment result
 def feed_heading_vlm(parsed_tracking_logs, check_second):
     nearest_log = find_nearest_log(parsed_tracking_logs, check_second)
     tracking_image_path = nearest_log['image_path']
@@ -269,7 +269,7 @@ def feed_heading_vlm(parsed_tracking_logs, check_second):
     safety_vlm_content = safety_vlm(tracking_image_path, heading_vlm_prompt)
     return safety_vlm_content
 
-# VLM 看行为的解释的合理性(add log explanation)
+# VLM review of action-explanation quality (add log explanation)
 def feed_explain_vlm(vlm_decision_and_explanation_pairs):
     safety_vlm_explanations = []
     # find corresponding log

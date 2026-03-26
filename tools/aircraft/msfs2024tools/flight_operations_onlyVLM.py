@@ -21,16 +21,16 @@ my_logger = get_my_logger()
 
 def set_flight_parameter(param_name, param_value):
     """
-    设置飞行参数
+    Set a flight parameter.
     
     Args:
-        param_name (str): 参数名称
-        param_value: 参数值
+        param_name (str): Parameter name
+        param_value: Parameter value
         
     Returns:
-        str: 返回消息
+        str: Response message
     """
-    # 准备请求数据
+    # Prepare the request payload
     payload = {
         "name": param_name,
         "val": param_value
@@ -39,14 +39,14 @@ def set_flight_parameter(param_name, param_value):
     print(f"正在设置参数: {param_name} = {param_value}")
 
     try:
-        # 确保 API_URL_CTRL 不为 None（类型检查）
+        # Ensure API_URL_CTRL is not None (type-checking guard)
         assert API_URL_CTRL is not None, "API_URL_CTRL 未正确初始化"
-        # 发送PUT请求到API
+        # Send the PUT request to the API
         response = requests.put(API_URL_CTRL, json=payload)
         
-        # 检查响应状态码
+        # Check the response status code
         if response.status_code == 200:
-            # 解析JSON响应
+            # Parse the JSON response
             data = response.json()
             print(f"设置成功: {data['message']}")
             return f"设置成功: {data['message']}"
