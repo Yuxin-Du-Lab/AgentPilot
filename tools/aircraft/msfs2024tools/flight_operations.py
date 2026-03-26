@@ -1,5 +1,3 @@
-# Contributors: Chenglin Liu
-
 import requests
 import json
 import time
@@ -294,4 +292,4 @@ def move_forward_and_descend(time_s):
 if __name__ == "__main__":
     import logging
     logging.basicConfig(stream=sys.stderr, force=True)
-    mcp.run(transport='stdio') 
+    mcp.run(transport='stdio')

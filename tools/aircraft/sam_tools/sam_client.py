@@ -1,5 +1,3 @@
-# Contributors: Yunqi Zhao, Yuxin Du
-
 from typing import Any
 import os
 from dotenv import load_dotenv
@@ -107,4 +105,3 @@ def sam_request(client: SAMClient, image, prompt_points):
     # 执行分割
     mask = client.segment_image(image, prompt_points, None)
     return mask
-

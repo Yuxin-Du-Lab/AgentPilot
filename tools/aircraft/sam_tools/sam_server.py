@@ -1,5 +1,3 @@
-# Contributors: Yunqi Zhao, Yuxin Du
-
 import cv2
 import numpy as np
 from flask import Flask, request, jsonify
@@ -107,4 +105,4 @@ if __name__ == '__main__':
     print("启动SAM服务器...")
     print("请确保已下载SAM模型权重文件")
     print(f"服务器运行在 http://{os.getenv('SAM_SERVER_IP')}:{os.getenv('SAM_SERVER_PORT')}")
-    app.run(host=os.getenv('SAM_SERVER_IP'), port=int(os.getenv('SAM_SERVER_PORT')), debug=True) 
+    app.run(host=os.getenv('SAM_SERVER_IP'), port=int(os.getenv('SAM_SERVER_PORT')), debug=True)

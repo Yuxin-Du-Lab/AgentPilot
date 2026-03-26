@@ -1,5 +1,3 @@
-# Contributors: Yunqi Zhao, Yuxin Du, Chenglin Liu, Qiwei Wu,  Yuanlin Chu
-
 # python flight_agent.py --query "fly"
 
 # import os

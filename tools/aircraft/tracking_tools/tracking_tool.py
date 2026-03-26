@@ -1,5 +1,3 @@
-# Contributors: Yuxin Du, Chenglin Liu, Yunqi Zhao
-
 import cv2
 import numpy as np
 import os

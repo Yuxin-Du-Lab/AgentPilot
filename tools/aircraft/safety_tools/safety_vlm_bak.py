@@ -1,5 +1,3 @@
-# Contributors: Chenglin Liu, Qiwei Wu
-
 from openai import OpenAI
 from dotenv import load_dotenv
 import sys

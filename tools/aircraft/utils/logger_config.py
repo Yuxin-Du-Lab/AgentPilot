@@ -1,5 +1,3 @@
-# Contributors: Yuxin Du
-
 import logging
 import sys
 
@@ -29,8 +27,8 @@ def setup_logger(name):
     # 设置日志格式
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     console_handler.setFormatter(formatter)
-    
+
     # 添加处理器到logger
     logger.addHandler(console_handler)
-    
-    return logger 
+
+    return logger

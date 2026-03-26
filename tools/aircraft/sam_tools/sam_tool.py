@@ -1,5 +1,3 @@
-# Contributors: Yunqi Zhao, Yuxin Du, Chenglin Liu, Qiwei Wu,  Yuanlin Chu
-
 from dotenv import load_dotenv
 import os
 from PIL import Image

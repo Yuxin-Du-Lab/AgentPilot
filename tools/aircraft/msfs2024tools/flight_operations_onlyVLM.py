@@ -1,5 +1,3 @@
-# Contributors: Chenglin Liu
-
 import requests
 import json
 import time
@@ -287,4 +285,4 @@ def move_forward_and_descend(time_s):
         return '飞机已着陆，请停止一切操作'
 
 if __name__ == "__main__":
-    mcp.run(transport='stdio') 
+    mcp.run(transport='stdio')

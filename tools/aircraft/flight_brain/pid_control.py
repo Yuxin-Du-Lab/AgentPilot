@@ -1,5 +1,3 @@
-# Contributors: Yunqi Zhao, Yuxin Du, Qiwei Wu
-
 import time
 import json
 import os
@@ -280,7 +278,6 @@ if __name__ == "__main__":
     import logging
     logging.basicConfig(stream=sys.stderr, force=True)
     mcp.run(transport='stdio') 
-
 
 
 

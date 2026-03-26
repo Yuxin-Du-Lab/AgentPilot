@@ -1,5 +1,3 @@
-# Contributors: Yunqi Zhao, Yuxin Du, Chenglin Liu, Qiwei Wu,  Yuanlin Chu
-
 import json
 from mcp.server.fastmcp import FastMCP
 from openai import OpenAI
@@ -98,4 +96,4 @@ if __name__ == "__main__":
     import logging
     logging.basicConfig(stream=sys.stderr, force=True)
     print("Landing control is running")
-    mcp.run(transport='stdio') 
+    mcp.run(transport='stdio')

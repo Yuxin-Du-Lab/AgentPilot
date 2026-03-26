@@ -1,4 +1,3 @@
-# Contributors: Yuxin Du, Chenglin Liu
 import requests  # 导入requests库，用于发送HTTP请求
 from datetime import datetime  # 导入datetime模块，用于获取当前时间
 import time  # 导入time模块，用于延时
@@ -164,4 +163,4 @@ if __name__ == '__main__':
 #     print(f"Server address: http://{os.getenv('CAPTURE_SERVER_IP')}:{os.getenv('CAPTURE_SERVER_PORT')}")
 #     print(f"Upload endpoint: http://{os.getenv('CAPTURE_SERVER_IP')}:{os.getenv('CAPTURE_SERVER_PORT')}/upload")
 #     app.run(host=os.getenv('CAPTURE_SERVER_IP'), port=int(os.getenv('CAPTURE_SERVER_PORT')), debug=True)
-#     # app.run(host='0.0.0.0', port=7001, debug=True) 
+#     # app.run(host='0.0.0.0', port=7001, debug=True)

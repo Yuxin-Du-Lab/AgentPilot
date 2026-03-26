@@ -1,5 +1,27 @@
 # Agent-Pilot: A Visual Hybrid Intelligence Closed-Loop Framework for eVTOL Autonomous Landing
 
+## MSFS 2024 Setup
+
+Before using `tools/aircraft`, prepare the simulator and toolkit on the Windows machine that runs Microsoft Flight Simulator 2024.
+
+### Install Microsoft Flight Simulator 2024
+
+- Install **Microsoft Flight Simulator 2024**. This project targets MSFS 2024 rather than MSFS 2020.
+- Launch MSFS 2024 once after installation and confirm the simulator can run normally.
+- Keep the IPv4 address of the MSFS 2024 machine. You will use it later in `.env` for `API_URL_CTRL`, `API_URL_CAMERA`, `API_URL_GET`, and `API_URL_CAMERA_CTRL`.
+
+### Install and Use the MSFS24 AICtrl DevKit
+
+- Download [MSFS24_AICtrl_DevKit_1.0.1_x64_en-US.pdf](assets/msfs/MSFS24_AICtrl_DevKit_1.0.1_x64_en-US.pdf) from this repository.
+- The tracked file is the DevKit installer stored with a `.pdf` suffix. After downloading it, rename the file suffix to `.msi`.
+- Run the renamed `.msi` installer on the Windows machine that runs MSFS 2024.
+- After installation, use the toolkit to expose the control and image endpoints required by this project:
+  - `http://<MSFS_IP>:5000/set`
+  - `http://<MSFS_IP>:5000/camera_image`
+  - `http://<MSFS_IP>:5000/get`
+  - `http://<MSFS_IP>:5000/camera_control`
+- Fill the corresponding values in `.env` before launching `capture_server` or `flight_agent`.
+
 This repository is prepared for running **Agent-Pilot** via `tools/aircraft`.
 
 ```bash
@@ -109,5 +131,4 @@ python flight_agent.py --query "landing on the target vertipot"
 
 ## Acknowledgment
 Thanks to [Fractflow](https://github.com/EnVision-Research/FractFlow), [Segment Anything (SAM)](https://github.com/facebookresearch/segment-anything), and [Video Depth Anything](https://github.com/DepthAnything/Video-Depth-Anything).
-
 
