@@ -61,11 +61,11 @@ Then edit `.env`:
 
 #### MSFS Camera Control
 
-Use [`/data2/dyx/msfs_camera_control.py`](/data2/dyx/msfs_camera_control.py) to set camera parameters:
+Use `path/to/msfs_camera_control.py` to set camera parameters:
 
 ```bash
-cd /data2/dyx
-python3 /data2/dyx/msfs_camera_control.py --host 10.7.144.111 --port 5000 --method post --x 0 --y -0.01 --z 2.27 --pitch 0 --yaw 0 --roll 0
+cd path/to
+python3 path/to/msfs_camera_control.py --host 10.7.144.111 --port 5000 --method post --x 0 --y -0.01 --z 2.27 --pitch 0 --yaw 0 --roll 0
 ```
 
 ```bash
