@@ -5,6 +5,7 @@ import gradio as gr
 from sam_tools.sam_client import SAMClient, sam_request
 from dotenv import load_dotenv
 import numpy as np
+from utils.image_utils import atomic_save_pil_image
 
 # Load environment variables
 load_dotenv()
@@ -73,8 +74,8 @@ class SAM_TOOL:
         # for tracking
         initial_image_path = "./tmp/init_tracking_view.png"
         initial_mask_path = "./tmp/init_tracking_mask.png"
-        image.save(initial_image_path)
-        Image.fromarray(mask).save(initial_mask_path)
+        atomic_save_pil_image(image, initial_image_path)
+        atomic_save_pil_image(Image.fromarray(mask), initial_mask_path)
         return f"处理完成\n当前点击坐标: ({x}, {y})"
         
         # Return the final result

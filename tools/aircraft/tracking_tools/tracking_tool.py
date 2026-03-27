@@ -6,6 +6,7 @@ import json
 from PIL import Image, ImageDraw
 from sam_tools.sam_tool import SAM_TOOL
 import asyncio  # Added
+from utils.image_utils import atomic_dump_json, atomic_write_cv2_image
 
 
 def save_frames_to_video(frames, bbox_datas, video_len, output_path):
@@ -47,8 +48,7 @@ def save_frames_to_video(frames, bbox_datas, video_len, output_path):
     
     # Save the adjusted bbox data
     bbox_json_path = output_path.replace('.mp4', '_bbox.json')
-    with open(bbox_json_path, 'w') as f:
-        json.dump(adjusted_bbox_datas, f, indent=2)
+    atomic_dump_json(adjusted_bbox_datas, bbox_json_path, indent=2)
     
     # Get the first frame size
     height, width = frames[0].shape[:2]
@@ -238,7 +238,7 @@ def continue_tracking(should_continue_func=None, video_len=20):
                 time.sleep(0.5)
                 fail_img = np.zeros((224, 224, 3), dtype=np.uint8)
                 crop_image_path = "./tmp/tracked_view_crop.png"
-                cv2.imwrite(crop_image_path, fail_img)
+                atomic_write_cv2_image(crop_image_path, fail_img)
                 json_output_path = "./tmp/tracked_view_bbox.json"
                 fail_data = {
                     "frame": -1,
@@ -250,18 +250,14 @@ def continue_tracking(should_continue_func=None, video_len=20):
                     },
                     "timestamp": time.time()
                 }
-                with open(json_output_path, 'w') as f:
-                    json.dump(fail_data, f, indent=2)
+                atomic_dump_json(fail_data, json_output_path, indent=2)
                 break
             
             # Draw the bounding box and save the image
             result_image = new_image.copy()
-
-            
-            # Save the image with the bounding box
-            cv2.imwrite(output_path, result_image)
             x, y, w, h = [int(v) for v in tracked_bbox]
             cv2.rectangle(result_image, (x, y), (x + w, y + h), (0, 0, 255), 4)
+            atomic_write_cv2_image(output_path, result_image)
             # Crop result_image around the bbox center; crop size is 1.2x the bbox and never exceeds image bounds
             # Compute the crop region centered on the bounding box
             crop_scale = 2
@@ -293,7 +289,7 @@ def continue_tracking(should_continue_func=None, video_len=20):
             crop_image = result_image[crop_y1:crop_y2, crop_x1:crop_x2]
             crop_image_path = output_path.replace('.png', '_crop.png')
 
-            cv2.imwrite(crop_image_path, crop_image)
+            atomic_write_cv2_image(crop_image_path, crop_image)
             
             # Save bounding-box coordinates as a JSON file
             bbox_data = {
@@ -319,8 +315,7 @@ def continue_tracking(should_continue_func=None, video_len=20):
             
             # Build the JSON path corresponding to the image path
             json_output_path = output_path.replace('.png', '_bbox.json')
-            with open(json_output_path, 'w') as f:
-                json.dump(bbox_data, f, indent=2)
+            atomic_dump_json(bbox_data, json_output_path, indent=2)
 
             yield f"第{len(frames)+1}帧跟踪成功 - 位置: ({x}, {y}, {w}, {h})"
             

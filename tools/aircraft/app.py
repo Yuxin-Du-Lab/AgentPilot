@@ -6,6 +6,7 @@ import time
 import threading
 
 from sam_tools.sam_tool import SAM_TOOL
+from utils.image_utils import load_image_eager
 
 # from safety_check.safty_mcp import Safety_VLM_Local
 from tracking_tools.tracking_tool import continue_tracking
@@ -189,16 +190,21 @@ class Gradio_Interface():
         initial_mask_path = "./tmp/init_tracking_mask.png"
         if not os.path.exists(initial_image_path) or not os.path.exists(initial_mask_path):
             return None
-        initial_image = Image.open(initial_image_path)
-        initial_mask = Image.open(initial_mask_path)
-        overlay_img = self.sam_tool.overlay_mask_on_image(initial_image, initial_mask)
-        return overlay_img
+        try:
+            initial_image = load_image_eager(initial_image_path)
+            initial_mask = load_image_eager(initial_mask_path)
+            return self.sam_tool.overlay_mask_on_image(initial_image, initial_mask)
+        except (OSError, ValueError) as e:
+            print(f"Failed to load SAM image: {e}")
+            return None
 
     def load_tracker_image(self):
         """Load the tracking image."""
         try:
-            if os.path.exists(self.tracker_img_path):
-                return Image.open(self.tracker_img_path), Image.open(self.tracker_img_path_vlm)
+            if os.path.exists(self.tracker_img_path) and os.path.exists(self.tracker_img_path_vlm):
+                tracker_image = load_image_eager(self.tracker_img_path)
+                tracker_crop = load_image_eager(self.tracker_img_path_vlm)
+                return tracker_image, tracker_crop
             else:
                 return None, None
         except Exception as e:
@@ -225,9 +231,13 @@ class Gradio_Interface():
     def load_frame(self, img_pth):
         # Check whether the file exists
         if not os.path.exists(img_pth):
-            return None, f"Image file not found: {img_pth}"
+            return None
         # Load the image
-        img = Image.open(img_pth)
+        try:
+            img = load_image_eager(img_pth)
+        except (OSError, ValueError) as e:
+            print(f"Failed to load frame: {e}")
+            return None
         # Handle different image formats
         if img.mode == 'RGBA':
             # Convert RGBA to RGB
