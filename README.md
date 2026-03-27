@@ -12,7 +12,7 @@ Before using `tools/aircraft`, prepare the simulator and toolkit on the Windows 
 ### Install Microsoft Flight Simulator 2024
 
 - Install **Microsoft Flight Simulator 2024**. This project targets MSFS 2024 rather than MSFS 2020.
-- Launch MSFS 2024 once after installation and confirm the simulator can run normally.
+- Launch MSFS 2024 once after installation and confirm the simulator can run normally,and choose the JOBY S4 eVTOL in the Free Flight Mode on a vertiport.
 - Keep the IPv4 address of the MSFS 2024 machine. You will use it later in `.env` for `API_URL_CTRL`, `API_URL_CAMERA`, `API_URL_GET`, and `API_URL_CAMERA_CTRL`.
 
 ### Install and Use the MSFS24 AICtrl DevKit
